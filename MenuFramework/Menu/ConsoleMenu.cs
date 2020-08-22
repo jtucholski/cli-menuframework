@@ -216,28 +216,4 @@ namespace MenuFramework
         }
     }
 
-    /// <summary>
-    /// This menu is used to display a list of data-driven options.
-    /// The type must implement IMenuFormattable for display purposes.
-    /// </summary>
-    /// <typeparam name="T">Type of data to display in the menu.</typeparam>
-    public class ConsoleMenu<T> : ConsoleMenu where T : IMenuFormattable
-    {
-        
-        /// <summary>
-        /// Adds multiple menu options.
-        /// </summary>
-        /// <param name="dataSource">The list of objects to add.</param>
-        /// <param name="action">The method to invoke. The selected item is passed as the parameter.</param>
-        /// <returns></returns>
-        public ConsoleMenu AddOptionRange(List<T> dataSource, Action<T> action)
-        {
-            foreach (T item in dataSource)
-            {
-                AddOption(item.FormatAsMenuOption(), () => action(item));
-            }
-
-            return this;
-        }        
-    }
 }
