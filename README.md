@@ -96,6 +96,8 @@ static void Main(string[] args)
 }
 ```
 
+#### Working with Complex Types
+
 More complex types can be passed in as well. Their `.ToString()` representation will be used when displayed as a menu option.
 
 ![Menu Arguments with Complex Types](gifs/menu-args-complex.gif)
