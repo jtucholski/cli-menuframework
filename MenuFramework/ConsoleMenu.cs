@@ -1,11 +1,11 @@
-using System.Reflection;
 using System;
 using System.Collections.Generic;
 
 namespace MenuFramework
 {
-
-
+    /// <summary>
+    /// A Console Menu that supports selectable menu options.
+    /// </summary>
     public class ConsoleMenu
     {
         // Private Instance Variable
@@ -34,49 +34,56 @@ namespace MenuFramework
         /// <summary>
         /// Adds a new option to the menu.
         /// </summary>
-        /// <param name="option">The MenuOption object.</param>
+        /// <param name="option">A MenuOption object.</param>
         public ConsoleMenu AddOption(MenuOption option)
         {
             menuOptions.Add(option);
             return this;
         }
 
-        public ConsoleMenu AddOption<T>(string text, T item, Action<T> action)
+        /// <summary>
+        /// Adds an option to the menu. The item is passed back to the callback method.
+        /// </summary>
+        /// <param name="text">Text to display.</param>
+        /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
+        /// <param name="item">The object to pass the method when invoked.</param>
+        /// <returns></returns>
+        public ConsoleMenu AddOption<T>(string text, Action<T> action, T item)
         {
             AddOption(text, () => action(item));
             return this;
         }
 
         /// <summary>
-        /// Adds a new option to the menu that is passed to the action upon selection.
+        /// Adds a data bound option to the menu. The item is passed back to the callback method.
         /// </summary>
         /// <param name="item">The item create as a menu option.</param>
-        /// <param name="action">The method to invoke. The method must have a single argument of type T.</param>
+        /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
         /// <returns></returns>
         public ConsoleMenu AddOption<T>(T item, Action<T> action)
         {
-            AddOption(item.ToString(), () => action(item));
+            AddOption(new MenuOption<T>(() => action(item), item));
             return this;
         }
 
         /// <summary>
         /// Adds multiple options to the menu at once.
         /// </summary>
-        /// <param name="items">A collection of items.</param>
+        /// <param name="items">A collection of items to create as menu options.</param>
         /// <param name="action">The method to invoke. The method must have a single argument of type T.</param>        
         /// <returns></returns>
         public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Action<T> action)
         {
-            foreach(T item in items)
+            foreach (T item in items)
             {
-                AddOption(item.ToString(), () => action(item));
+                AddOption(new MenuOption<T>(() => action(item), item));
             }
 
             return this;
         }
 
         /// <summary>
-        /// Display the menu options.
+        /// Displays the menu.
         /// </summary>
         public void Show()
         {
@@ -97,6 +104,8 @@ namespace MenuFramework
                     {
                         Console.WriteLine(config.Title);
                     }
+
+                    OnBeforeShow();
 
                     // Print the options
                     for (int i = 0; i < menuOptions.Count; i++)
@@ -141,15 +150,7 @@ namespace MenuFramework
                 // Invoke the associated option
                 selectedOption.Command();
 
-                // If the command referenced .Show(), we just left
-                // another submenu
-                bool wasInSubmenu = selectedOption.Command.Method == MethodInfo.GetCurrentMethod();
-
-                // See if we want to wait for the user to resume
-                if (config.WaitAfterMenuSelection && !wasInSubmenu)
-                {
-                    Console.ReadKey();
-                }
+                CheckForWait(selectedOption);
 
                 // Automatically close the menu?
                 if (config.CloseMenuOnSelection)
@@ -160,11 +161,21 @@ namespace MenuFramework
             }
         }
 
+        /// <summary>
+        /// Enables the ability to overwrite any of the default configuration settings.
+        /// </summary>
+        /// <param name="action">An Action that accepts a MenuConfig arugment.</param>
+        /// <returns></returns>
         public ConsoleMenu Configure(Action<MenuConfig> action)
         {
             action.Invoke(config);
             return this;
         }
+
+        /// <summary>
+        /// Override this if specific code needs to execute before the menu is shown.
+        /// </summary>
+        protected virtual void OnBeforeShow() { }        
 
         private int GetIndexOfNextItem(int currentIndex)
         {
@@ -189,6 +200,15 @@ namespace MenuFramework
             else //Otherwise selected one is one of the later options in the list
             {
                 return currentIndex - 1;
+            }
+        }
+
+        private void CheckForWait(MenuOption option)
+        {
+            //We allow local menu options to override the configure wait
+            if (config.WaitAfterMenuSelection)
+            {
+                Console.ReadKey();
             }
         }
 
