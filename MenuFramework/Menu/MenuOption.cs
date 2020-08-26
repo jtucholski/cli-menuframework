@@ -11,7 +11,14 @@ namespace MenuFramework
         /// The text to display for this menu option.
         /// </summary>
         /// <value></value>
-        public string Text { get; }
+        public string Text
+        {
+            get;
+            //{
+            //    return textFunction();
+            //}
+        }
+        //private Func<string> textFunction { get; }
 
         /// <summary>
         /// The command to invoke when the menu option is selected.
@@ -29,5 +36,16 @@ namespace MenuFramework
             Text = text;
             Command = command;
         }
+
+        /// <summary>
+        /// Creates a new menu option.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="command"></param>
+        //public MenuOption(Func<string> textFunction, Action command)
+        //{
+        //    this.textFunction = textFunction;
+        //    Command = command;
+        //}
     }
 }

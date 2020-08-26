@@ -9,7 +9,7 @@ namespace MenuFramework
     public class ConsoleMenu
     {
         // Private Instance Variable
-        private List<MenuOption> menuOptions = new List<MenuOption>();
+        protected List<MenuOption> menuOptions = new List<MenuOption>();
         private readonly MenuConfig config = new MenuConfig();
 
         public ConsoleMenu() { }
@@ -18,6 +18,8 @@ namespace MenuFramework
         {
             throw new InvalidOperationException("This method is not meant to be invoked.");
         }
+
+        virtual protected void RebuildMenuOptions() { }
 
         /// <summary>
         /// Adds a new option to the menu.
@@ -30,6 +32,13 @@ namespace MenuFramework
             menuOptions.Add(option);
             return this;
         }
+
+        //public ConsoleMenu AddOption(Func<string> textFunction, Action action)
+        //{
+        //    MenuOption option = new MenuOption(textFunction, action);
+        //    menuOptions.Add(option);
+        //    return this;
+        //}
 
         /// <summary>
         /// Adds a new option to the menu.
@@ -98,6 +107,10 @@ namespace MenuFramework
                         Console.WriteLine(config.Title);
                     }
 
+                    // Call the virtual method to rebuild the options on the menu. Menus that are dynamic (data-driven) 
+                    // in nature should override and re-build menuOptions with the latest data.
+                    RebuildMenuOptions();
+
                     // Print the options
                     for (int i = 0; i < menuOptions.Count; i++)
                     {
@@ -109,6 +122,14 @@ namespace MenuFramework
 
                     // Let the user press a key
                     key = Console.ReadKey().Key;
+
+                    if (key == ConsoleKey.Escape && config.CloseOnEscape)
+                    {
+                        // This is a HACK! It seems the ESC character somehow "swallows" the next character printed to the screen.  
+                        // So I am printing a garbage character, never to be seen. Weird.
+                        Console.WriteLine("X");
+                        return;
+                    }
 
                     if (key == ConsoleKey.DownArrow)
                     {

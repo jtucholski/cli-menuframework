@@ -30,5 +30,9 @@ namespace MenuFramework
 
         /// <summary>default: ""</summary>                
         public string Title { get; set; } = "";
+        /// <summary>
+        /// default: true
+        /// </summary>
+        public bool CloseOnEscape { get; set; } = true;
     }
 }
