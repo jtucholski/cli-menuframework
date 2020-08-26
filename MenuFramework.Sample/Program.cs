@@ -11,7 +11,7 @@ namespace MenuFramework.Sample
             ConsoleMenu menu = new ConsoleMenu()
                 .AddOption("Hello World", HelloWorld)
                 .AddOption("Date and Time", DateAndTime)
-                .AddOption("Close", ConsoleMenu.Close);
+                .AddOption("Close", ConsoleMenu.Close);                                
 
             menu.Show();
         }

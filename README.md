@@ -2,25 +2,25 @@
 
 This framework is a proof of concept at a lightweight, easy to implement, console menu framework. 
 
-Out of the box, the menu supports:
+The following features are explained:
 
-* An easy to navigate menu
-* An optional configuration framework
-* Dynamic data-driven menu options
-* Submenus
+* [Creating a static menu](#creating-a-static-menu)
+* [Passing data to menu commands](#passing-data)
+* [Dynamic menus](#dynamic-menus)
+* [Menu Configuration](#menu-configuration)
 
 
-Two key design decisions were made putting the framework together:
-* A fluent interface implemented using method chaining
-* Delegates using Action and Action<T>
+Two key decisions were made putting the framework together that influenced the design:
+* A fluent interface implemented using method chaining.
+* The usage of delegates to associate commands with each menu option.
 
-While these introduce concepts that students are unfamiliar to during the curriculum, they appear often in modern codebases and/or when using other frameworks (i.e. ASP.NET MVC)
+Both of these concepts are unfamiliar to the beginner programmer but are often used in modern server-side frameworks.
 
 ## Usage
 
-### Simple Menu
+### Creating a static menu
 
-This example demonstrates the simplest use case for setting up a menu. Each menu option has text and a reference to a `void` method that is invoked.
+This example demonstrates the simplest use case for creating a static menu.
 
 ![Basic Usage Example](gifs/menu-basic.gif)
 
@@ -48,109 +48,70 @@ static void CurrentTime()
 }
 ```
 
-### Menu Callback Arguments
+### Passing Data
 
-If an argument should be passed to the menu call back, a generic overload exists which supports passing an item that will be used when invoking the callback action.
+If your command requires data for context, an overload exists which supports providing an item to pass onto the callback action.
 
-This allows you to use the same callback to support data-driven menus.
-
-![Menu Args Example](gifs/menu-args.gif)
 
 ```csharp
 static void Main(string[] args)
-{    
+{         
+    Park park1 = new Park() { Name = "Cuyahoga Valley National Park", Abbrebiation = "CVNP", State = "OH" };
+    Park park2 = new Park() { Name = "Grand Canyon National Park", Abbrebiation = "GCNP", State = "AZ" };
+    Park park3 = new Park() { Name = "Acadia National Park", Abbrebiation = "ANP", State = "ME" };
+
     ConsoleMenu mainMenu = new ConsoleMenu()
-        .AddOption<string>("Blue", ColorSelection)
-        .AddOption<string>("Green", ColorSelection)
-        .AddOption<string>("Red", ColorSelection)
-        .AddOption<string>("Yellow", ColorSelection)        
+        .AddOption<Park>("CVNP", park1, ParkSelection)
+        .AddOption<Park>("GCNP", park2, ParkSelection)
+        .AddOption<Park>("ANP", park3, ParkSelection)
         .AddOption("Close", ConsoleMenu.Close);
         
     mainMenu.Show();
 }
 
-static void ColorSelection(string color)
+static void ParkSelection(Park selection)
 {
-    Console.WriteLine($"You selected {color}.");
+    // i.e. "You selected Cuyahoga Valley National Park.
+    Console.WriteLine($"You selected {selection.Name}.");
 }
 ```
 
-The same result could be achieved by calling `AddOptionRange<T>` where `T` is the type of the parameter that will be passed to the callback method.
+### Dynamic Menus
 
-```csharp
-static void Main(string[] args)
-{
-    List<string> colors = new List<string>()
-    {
-        "Blue",
-        "Green",
-        "Red",
-        "Yellow"
-    };
+Dynamic menus are supported by calling `AddOptionRange<T>` where `T` is the type of the collection passed in. To control how the menu text is displayed, override `.ToString()`.
 
-    ConsoleMenu mainMenu = new ConsoleMenu()
-        .AddOptionRange<string>(colors, ColorSelection)
-        .AddOption("Close", ConsoleMenu.Close);
-
-    mainMenu.Show();
-}
-```
-
-#### Working with Complex Types
-
-More complex types can be passed in as well. Their `.ToString()` representation will be used when displayed as a menu option.
-
-![Menu Arguments with Complex Types](gifs/menu-args-complex.gif)
-
-```csharp
-static void Main(string[] args)
-{
-    List<Park> parks = new List<Park>()
-    {
-        new Park() { Name = "Olympic National Park", State = "WA" },
-        new Park() { Name = "Cuyahoga Valley National Park", State = "OH" }
-    };
-
-    ConsoleMenu mainMenu = new ConsoleMenu()
-        .AddOptionRange<Park>(parks, ParkSelection)
-        .AddOption("Close", ConsoleMenu.Close);
-
-    mainMenu.Show();    
-}
-
-static void ParkSelection(Park park)
-{
-    Console.WriteLine($"You selected {park.Name} which is located in {park.State}.");
-}
-```
-
-### Sub Menu
-
-A menu can be passed into an outer menu as a reference. In this example, the **Today** option invokes `.Show()` on the sub menu.
-
-![Sub Menu Usage Example](gifs/menu-submenu.gif)
 
 ```csharp
 static void Main(string[] args)
 {    
-    ConsoleMenu subMenu = new ConsoleMenu()
-        .AddOption("Forecast", DisplayTodaysWeather)
-        .AddOption("Date and Time", CurrentTime)
-        .AddOption("Close", ConsoleMenu.Close);
+    List<Park> parks = new List<Park>()
+    {
+        new Park() { Name = "Cuyahoga Valley National Park", Abbrebiation = "CVNP", State = "OH" },
+        new Park() { Name = "Grand Canyon National Park", Abbrebiation = "GCNP", State = "AZ" },
+        new Park() { Name = "Acadia National Park", Abbrebiation = "ANP", State = "ME" }
+    };  
 
     ConsoleMenu mainMenu = new ConsoleMenu()
-        .AddOption("Today", subMenu.Show)
+        .AddOptionRange<Park>(parks, ParkSelection)
         .AddOption("Close", ConsoleMenu.Close);
-
+        
     mainMenu.Show();
+}
+
+static void ParkSelection(Park selection)
+{
+    // i.e. "You selected Cuyahoga Valley National Park."
+    Console.WriteLine($"You selected {selection.Name}."); 
+}
 }
 ```
 
-### Configuration
+
+### Menu Configuration
 
 Each menu supports configuration with background and foreground colors, selectors, titles, and more.
 
-The `.Configure()` method accepts a single argument, a `MenuConfig` that is used to modify the default configuration for each menu.
+The `.Configure()` method accepts a single argument, `MenuConfig`, that is used to modify the default configuration for each menu.
 
 ![Menu Configuration](gifs/menu-configuration.gif)
 
@@ -158,7 +119,6 @@ The `.Configure()` method accepts a single argument, a `MenuConfig` that is used
 ```csharp
 static void Main(string[] args)
 {
-    
     ConsoleMenu mainMenu = new ConsoleMenu()
         .AddOptionRange<Park>(parks, ParkSelection)
         .AddOption("Close", ConsoleMenu.Close)
