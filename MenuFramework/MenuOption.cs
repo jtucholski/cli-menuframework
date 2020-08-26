@@ -11,14 +11,7 @@ namespace MenuFramework
         /// The text to display for this menu option.
         /// </summary>
         /// <value></value>
-        public string Text
-        {
-            get;
-            //{
-            //    return textFunction();
-            //}
-        }
-        //private Func<string> textFunction { get; }
+        public virtual string Text { get; }
 
         /// <summary>
         /// The command to invoke when the menu option is selected.
@@ -31,21 +24,34 @@ namespace MenuFramework
         /// </summary>
         /// <param name="text"></param>
         /// <param name="command"></param>
+        /// <param name="closeOnSelection"></param>        
         public MenuOption(string text, Action command)
         {
             Text = text;
             Command = command;
         }
+    }
+
+    /// <summary>
+    /// Represents a Menu Option with an object attached to it for "reactive text".
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class MenuOption<T> : MenuOption
+    {
+        private T item;
+        public MenuOption(Action command, T item) 
+            : base (item.ToString(), command) 
+        { 
+            this.item = item;
+        }
 
         /// <summary>
-        /// Creates a new menu option.
+        /// The text to display for this menu option.
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="command"></param>
-        //public MenuOption(Func<string> textFunction, Action command)
-        //{
-        //    this.textFunction = textFunction;
-        //    Command = command;
-        //}
+        /// <value></value>
+        public override string Text
+        {
+            get { return item.ToString(); }
+        }
     }
 }
