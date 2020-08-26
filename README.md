@@ -50,7 +50,7 @@ static void CurrentTime()
 
 ### Passing Data
 
-If your command requires data for context, an overload exists which supports providing an item to pass onto the callback action.
+If your command requires data for context, `AddOption<T>` supports providing an item to pass onto the callback action.
 
 
 ```csharp
