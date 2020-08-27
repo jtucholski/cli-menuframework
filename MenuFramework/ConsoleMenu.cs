@@ -136,13 +136,11 @@ namespace MenuFramework
                 // when the user presses Enter, invoke the option associated
                 // otherwise keep redrawing the screen as the "selection" changes
 
-                // Before the first draw - initialize
-                Console.Clear();
-                OnBeforeShow();
+                // Before the first draw - initialize some variables
                 int previousSelectionIndex = -1;
-                // Get the position where we start drawing the menu
-                int menuTop = Console.CursorTop;
+                int menuTop = 0;
                 int menuBottom = 0;
+
                 do
                 {
 
@@ -155,6 +153,12 @@ namespace MenuFramework
                     // 
                     if (previousSelectionIndex < 0)
                     {
+                        Console.Clear();
+                        OnBeforeShow();
+
+                        // Get the position where we start drawing the menu
+                        menuTop = Console.CursorTop;
+
                         // Print the options
                         for (int i = 0; i < menuOptions.Count; i++)
                         {
@@ -163,6 +167,7 @@ namespace MenuFramework
                             PrintMenuOption(option, isSelectedOption);
                             Console.WriteLine();
                         }
+                        // Get the position where the menu is finished drawing
                         menuBottom = Console.CursorTop;
                     }
                     else
@@ -203,6 +208,11 @@ namespace MenuFramework
                         previousSelectionIndex = currentSelectionIndex;
                         currentSelectionIndex = GetIndexOfPrevItem(currentSelectionIndex);
                     }
+                    else
+                    {
+                        // User typed something illegal. Reset so the menu gets re-drawn
+                        previousSelectionIndex = -1;
+                    }
 
                 } while (key != ConsoleKey.Enter);
 
@@ -231,7 +241,11 @@ namespace MenuFramework
                     return MenuOptionResult.DoNotWaitAfterMenuSelection;
                 }
 
-                CheckForWait(result);
+                // Insert a pause so the user must press a key if directed to
+                if (result == MenuOptionResult.WaitAfterMenuSelection)
+                {
+                    Console.ReadKey();
+                }
             }
         }
 
@@ -274,30 +288,6 @@ namespace MenuFramework
             else //Otherwise selected one is one of the later options in the list
             {
                 return currentIndex - 1;
-            }
-        }
-
-        private void CheckForWait(MenuOptionResult result)
-        {
-            // Start with the value configured in the menu
-            bool wait = config.WaitAfterMenuSelection;
-
-            // Check the result of the command for an override
-            switch (result)
-            {
-                case MenuOptionResult.CloseMenuAfterSelection:
-                case MenuOptionResult.DoNotWaitAfterMenuSelection:
-                case MenuOptionResult.ExitAfterSelection:
-                    wait = false;
-                    break;
-
-                case MenuOptionResult.WaitAfterMenuSelection:
-                    wait = true;
-                    break;
-            }
-            if (wait)
-            {
-                Console.ReadKey();
             }
         }
 

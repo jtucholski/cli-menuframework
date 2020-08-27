@@ -15,13 +15,13 @@ namespace MenuFramework.Sample.UI
         public MenuOptionResult DisplayTodaysWeather()
         {
             Console.WriteLine("The weather today is a perfect 85 degrees. Not a cloud in the sky!");
-            return MenuOptionResult.Default;
+            return MenuOptionResult.WaitAfterMenuSelection;
         }
 
         public MenuOptionResult TellTheTime()
         {
             Console.WriteLine($"The day and time is {DateTime.Now}");
-            return MenuOptionResult.Default;
+            return MenuOptionResult.WaitAfterMenuSelection;
         }
     }
 }

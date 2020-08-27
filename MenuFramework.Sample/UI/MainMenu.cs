@@ -17,7 +17,6 @@ namespace MenuFramework.Sample.UI
                 .Configure(config => {
                     config.SelectedItemBackgroundColor = ConsoleColor.Red;
                     config.SelectedItemForegroundColor = ConsoleColor.White;
-                    config.WaitAfterMenuSelection = false;
                 });
         }
 

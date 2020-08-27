@@ -61,10 +61,6 @@ namespace MenuFramework
     public enum MenuOptionResult : int
     {
         /// <summary>
-        /// The configuration of the overall menu will decide whether there will be a pause after selection.
-        /// </summary>
-        Default = 0,
-        /// <summary>
         /// The progam will pause after execution of the menu command, and the user will need to press any key to continue.
         /// </summary>
         WaitAfterMenuSelection,
