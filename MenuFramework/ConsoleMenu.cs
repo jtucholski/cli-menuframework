@@ -135,24 +135,49 @@ namespace MenuFramework
                 // At least once display the menu options,
                 // when the user presses Enter, invoke the option associated
                 // otherwise keep redrawing the screen as the "selection" changes
+
+                // Before the first draw - initialize
+                Console.Clear();
+                OnBeforeShow();
+                int previousSelectionIndex = -1;
+                // Get the position where we start drawing the menu
+                int menuTop = Console.CursorTop;
+                int menuBottom = 0;
                 do
                 {
-                    Console.Clear();
 
                     if (!String.IsNullOrEmpty(config.Title))
                     {
                         Console.WriteLine(config.Title);
                     }
 
-                    OnBeforeShow();
-
-                    // Print the options
-                    for (int i = 0; i < menuOptions.Count; i++)
+                    // The first time in this loop is a full *re-draw* of the menu. After the first time, when the user presses the arrow keys,
+                    // 
+                    if (previousSelectionIndex < 0)
                     {
-                        bool isSelectedOption = (currentSelectionIndex == i);
-                        MenuOption option = menuOptions[i];
-                        PrintMenuOption(option, isSelectedOption);
-                        Console.WriteLine();
+                        // Print the options
+                        for (int i = 0; i < menuOptions.Count; i++)
+                        {
+                            bool isSelectedOption = (currentSelectionIndex == i);
+                            MenuOption option = menuOptions[i];
+                            PrintMenuOption(option, isSelectedOption);
+                            Console.WriteLine();
+                        }
+                        menuBottom = Console.CursorTop;
+                    }
+                    else
+                    {
+                        // Draw a single item over the previously selected item, and the currently selected item
+                        Console.CursorTop = menuTop + previousSelectionIndex;
+                        Console.CursorLeft = 0;
+                        PrintMenuOption(menuOptions[previousSelectionIndex], false);
+ 
+                        Console.CursorTop = menuTop + currentSelectionIndex;
+                        Console.CursorLeft = 0;
+                        PrintMenuOption(menuOptions[currentSelectionIndex], true);
+
+                        Console.CursorTop = menuBottom;
+                        Console.CursorLeft = 0;
                     }
 
                     // Let the user press a key
@@ -169,11 +194,13 @@ namespace MenuFramework
                     if (key == ConsoleKey.DownArrow)
                     {
                         // Select the next option
+                        previousSelectionIndex = currentSelectionIndex;
                         currentSelectionIndex = GetIndexOfNextItem(currentSelectionIndex);
                     }
                     else if (key == ConsoleKey.UpArrow)
                     {
                         // Select previous option
+                        previousSelectionIndex = currentSelectionIndex;
                         currentSelectionIndex = GetIndexOfPrevItem(currentSelectionIndex);
                     }
 

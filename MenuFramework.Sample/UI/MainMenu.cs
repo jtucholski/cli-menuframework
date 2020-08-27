@@ -21,6 +21,23 @@ namespace MenuFramework.Sample.UI
                 });
         }
 
+        protected override void OnBeforeShow()
+        {
+            /*
+              __  __       _         __  __                  
+             |  \/  | __ _(_)_ __   |  \/  | ___ _ __  _   _ 
+             | |\/| |/ _` | | '_ \  | |\/| |/ _ \ '_ \| | | |
+             | |  | | (_| | | | | | | |  | |  __/ | | | |_| |
+             |_|  |_|\__,_|_|_| |_| |_|  |_|\___|_| |_|\__,_|
+            */
+            Console.WriteLine(@" __  __       _         __  __                  ");
+            Console.WriteLine(@"|  \/  | __ _(_)_ __   |  \/  | ___ _ __  _   _ ");
+            Console.WriteLine(@"| |\/| |/ _` | | '_ \  | |\/| |/ _ \ '_ \| | | |");
+            Console.WriteLine(@"| |  | | (_| | | | | | | |  | |  __/ | | | |_| |");
+            Console.WriteLine(@"|_|  |_|\__,_|_|_| |_| |_|  |_|\___|_| |_|\__,_|");
+            Console.WriteLine();
+        }
+
         private static MenuOptionResult HelloWorld()
         {
             Console.WriteLine("Hey there, Hello World!");
