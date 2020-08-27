@@ -2,13 +2,14 @@ using System;
 
 namespace MenuFramework.Sample.UI
 {
-    public class SubMenu : ConsoleMenu
+    public class TodayMenu : ConsoleMenu
     {        
-        public SubMenu()
+        public TodayMenu()
         {
            this.AddOption("Forecast", DisplayTodaysWeather)
                 .AddOption("Time", TellTheTime)
-                .AddOption("Close", Close);
+                .AddOption("Close", Close)
+                .AddOption("Exit", Exit);
         }
 
         public MenuOptionResult DisplayTodaysWeather()

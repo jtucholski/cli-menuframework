@@ -11,7 +11,7 @@ namespace MenuFramework.Sample.UI
         {
             this.parkDao = parkDao;
             this.AddOption("Hello World", HelloWorld)
-                .AddOption("Today", ShowSubMenu)
+                .AddOption("Today", ShowMenu<TodayMenu>)
                 .AddOption("Parks", ShowParksMenu)
                 .AddOption("Close", Close)
                 .Configure(config => {
@@ -27,16 +27,9 @@ namespace MenuFramework.Sample.UI
             return MenuOptionResult.WaitAfterMenuSelection;
         }
 
-        private MenuOptionResult ShowSubMenu()
-        {
-            (new SubMenu()).Show();
-            return MenuOptionResult.Default;
-        }
-
         private MenuOptionResult ShowParksMenu()
         {
-            new ParksMenu(parkDao).Show();
-            return MenuOptionResult.Default;
+            return new ParksMenu(parkDao).Show();
         }
 
         public void ParkSelected(Park selection)

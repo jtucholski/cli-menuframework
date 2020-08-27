@@ -14,14 +14,37 @@ namespace MenuFramework
 
         public ConsoleMenu() { }
 
+        #region Command methods that can be referred to by any derived menu for convenience
         /// <summary>
         /// Helper that can be added directly to a MenuOption to close (dismiss) the menu.
         /// </summary>
         /// <returns></returns>
-        public MenuOptionResult Close()
+        protected MenuOptionResult Close()
         {
             return MenuOptionResult.CloseMenuAfterSelection;
         }
+
+        /// <summary>
+        /// Helper that can be added directly to a MenuOption to Exit (dismiss this menu and  ALL parent menus).
+        /// </summary>
+        /// <returns></returns>
+        protected MenuOptionResult Exit()
+        {
+            return MenuOptionResult.ExitAfterSelection;
+        }
+
+        /// <summary>
+        /// Helper that can be added directly to a MenuOption to do a simple call to show a sub-menu
+        /// </summary>
+        /// <typeparam name="TMenu"></typeparam>
+        /// <returns></returns>
+        protected MenuOptionResult ShowMenu<TMenu>() where TMenu : ConsoleMenu, new()
+        {
+            TMenu menu = new TMenu();
+            return menu.Show();
+        }
+
+        #endregion
 
         /// <summary>
         /// A derived menu can override this method if it needs to "dynamically" build menu options.
@@ -97,7 +120,7 @@ namespace MenuFramework
         /// <summary>
         /// Displays the menu.
         /// </summary>
-        public void Show()
+        public MenuOptionResult Show()
         {
             ConsoleKey key;
             int currentSelectionIndex = 0;
@@ -140,7 +163,7 @@ namespace MenuFramework
                         // This is a HACK! It seems the ESC character somehow "swallows" the next character printed to the screen.  
                         // So I am printing a garbage character, never to be seen. Weird.
                         Console.WriteLine("X");
-                        return;
+                        return MenuOptionResult.DoNotWaitAfterMenuSelection;
                     }
 
                     if (key == ConsoleKey.DownArrow)
@@ -170,10 +193,15 @@ namespace MenuFramework
 
                 // Check Result and act accordingly
 
+                // If the action returned Exit
+                if (result == MenuOptionResult.ExitAfterSelection)
+                {
+                    return MenuOptionResult.ExitAfterSelection;
+                }
                 // If the action returned Close
                 if (result == MenuOptionResult.CloseMenuAfterSelection)
                 {
-                    return;
+                    return MenuOptionResult.DoNotWaitAfterMenuSelection;
                 }
 
                 CheckForWait(result);

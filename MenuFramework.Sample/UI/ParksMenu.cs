@@ -29,8 +29,7 @@ namespace MenuFramework.Sample.UI
 
         public MenuOptionResult ShowParkMenu(Park park)
         {
-            new ParkMenu(parkDao, park).Show();
-            return MenuOptionResult.DoNotWaitAfterMenuSelection;
+            return new ParkMenu(parkDao, park).Show();
         }
     }
 }
