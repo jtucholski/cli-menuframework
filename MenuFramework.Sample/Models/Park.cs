@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MenuFramework
+namespace MenuFramework.Sample.Models
 {
     public class Park
     {

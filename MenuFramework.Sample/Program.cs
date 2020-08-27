@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using MenuFramework;
+using MenuFramework.Sample.DAL;
+using MenuFramework.Sample.UI;
 
 namespace MenuFramework.Sample
 {
@@ -8,22 +10,11 @@ namespace MenuFramework.Sample
     {
         static void Main(string[] args)
         {
-            ConsoleMenu menu = new ConsoleMenu()
-                .AddOption("Hello World", HelloWorld)
-                .AddOption("Date and Time", DateAndTime)
-                .AddOption("Close", ConsoleMenu.Close);
+            ParkDao parkDao = new ParkDao("Connection string");
 
-            menu.Show();
+            MainMenu mainMenu = new MainMenu(parkDao);
+            mainMenu.Show();
         }
 
-        private static void HelloWorld()
-        {
-            Console.WriteLine("Hey there, Hello World!");
-        }
-
-        private static void DateAndTime()
-        {
-            Console.WriteLine($"The current date and time is {DateTime.Now}");
-        }
     }
 }

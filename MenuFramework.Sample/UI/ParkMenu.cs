@@ -1,7 +1,8 @@
-﻿using MenuFramework.DAL;
+﻿using MenuFramework.Sample.DAL;
+using MenuFramework.Sample.Models;
 using System;
 
-namespace MenuFramework
+namespace MenuFramework.Sample.UI
 {
     public class ParkMenu : ConsoleMenu
     {

@@ -19,6 +19,12 @@ namespace MenuFramework
             throw new InvalidOperationException("This method is not meant to be invoked.");
         }
 
+        /// <summary>
+        /// A derived menu can override this method if it needs to "dynamically" build menu options.
+        /// For example, if the menu is data-driven based on a List, and that list may be modified 
+        /// (items added, removed or updated) while the program runs, this method can be used to 
+        /// re-build the options just before displaying to the user.
+        /// </summary>
         virtual protected void RebuildMenuOptions() { }
 
         /// <summary>
@@ -26,19 +32,12 @@ namespace MenuFramework
         /// </summary>
         /// <param name="text">The text to display</param>
         /// <param name="action">An action to invoke.</param>
-        public ConsoleMenu AddOption(string text, Action action)
+        public ConsoleMenu AddOption(string text, Action action, bool? waitOnSelection = null)
         {
-            MenuOption option = new MenuOption(text, action);
+            MenuOption option = new MenuOption(text, action, waitOnSelection);
             menuOptions.Add(option);
             return this;
         }
-
-        //public ConsoleMenu AddOption(Func<string> textFunction, Action action)
-        //{
-        //    MenuOption option = new MenuOption(textFunction, action);
-        //    menuOptions.Add(option);
-        //    return this;
-        //}
 
         /// <summary>
         /// Adds a new option to the menu.
@@ -57,9 +56,9 @@ namespace MenuFramework
         /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
         /// <param name="item">The object to pass the method when invoked.</param>
         /// <returns></returns>
-        public ConsoleMenu AddOption<T>(string text, Action<T> action, T item)
+        public ConsoleMenu AddOption<T>(string text, Action<T> action, T item, bool? waitOnSelection = null)
         {
-            AddOption(text, () => action(item));
+            AddOption(text, () => action(item), waitOnSelection);
             return this;
         }
 
@@ -69,9 +68,9 @@ namespace MenuFramework
         /// <param name="item">The item create as a menu option.</param>
         /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
         /// <returns></returns>
-        public ConsoleMenu AddOption<T>(T item, Action<T> action)
+        public ConsoleMenu AddOption<T>(T item, Action<T> action, bool? waitOnSelection = null)
         {
-            AddOption(new MenuOption<T>(() => action(item), item));
+            AddOption(new MenuOption<T>(() => action(item), item, waitOnSelection));
             return this;
         }
 
@@ -81,11 +80,11 @@ namespace MenuFramework
         /// <param name="items">A collection of items to create as menu options.</param>
         /// <param name="action">The method to invoke. The method must have a single argument of type T.</param>        
         /// <returns></returns>
-        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Action<T> action)
+        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Action<T> action, bool? waitOnSelection = null)
         {
             foreach (T item in items)
             {
-                AddOption(new MenuOption<T>(() => action(item), item));
+                AddOption(new MenuOption<T>(() => action(item), item, waitOnSelection));
             }
 
             return this;
@@ -226,8 +225,9 @@ namespace MenuFramework
 
         private void CheckForWait(MenuOption option)
         {
-            //We allow local menu options to override the configure wait
-            if (config.WaitAfterMenuSelection)
+            // If the Option overrides, it wins. Else use the overall config value
+            if (option.WaitAfterSelection.HasValue && option.WaitAfterSelection.Value ||
+                !option.WaitAfterSelection.HasValue && config.WaitAfterMenuSelection)
             {
                 Console.ReadKey();
             }

@@ -19,16 +19,19 @@ namespace MenuFramework
         /// <value></value>
         public Action Command { get; }
 
+        public bool? WaitAfterSelection { get; } = null;
+
         /// <summary>
         /// Creates a new menu option.
         /// </summary>
         /// <param name="text"></param>
         /// <param name="command"></param>
         /// <param name="closeOnSelection"></param>        
-        public MenuOption(string text, Action command)
+        public MenuOption(string text, Action command, bool? waitAfterSelection = null)
         {
             Text = text;
             Command = command;
+            WaitAfterSelection = waitAfterSelection;
         }
     }
 
@@ -39,8 +42,8 @@ namespace MenuFramework
     public class MenuOption<T> : MenuOption
     {
         private T item;
-        public MenuOption(Action command, T item) 
-            : base (item.ToString(), command) 
+        public MenuOption(Action command, T item, bool? waitAfterSelection = null) 
+            : base (item.ToString(), command, waitAfterSelection) 
         { 
             this.item = item;
         }

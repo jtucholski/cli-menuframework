@@ -1,7 +1,8 @@
-using MenuFramework.DAL;
+using MenuFramework.Sample.DAL;
+using MenuFramework.Sample.Models;
 using System;
 
-namespace MenuFramework
+namespace MenuFramework.Sample.UI
 {
     public class MainMenu : ConsoleMenu
     {
@@ -9,19 +10,20 @@ namespace MenuFramework
         public MainMenu(ParkDao parkDao)
         {
             this.parkDao = parkDao;
-            this.AddOption("Greeting", ShowGreeting)
+            this.AddOption("Hello World", HelloWorld, true)
                 .AddOption("Today", (new SubMenu()).Show)
                 .AddOption("Parks", new ParksMenu(parkDao).Show)
                 .AddOption("Close", Close)
                 .Configure(config => {
                     config.SelectedItemBackgroundColor = ConsoleColor.Red;
                     config.SelectedItemForegroundColor = ConsoleColor.White;
+                    config.WaitAfterMenuSelection = false;
                 });
         }
 
-        public void ShowGreeting()
+        private static void HelloWorld()
         {
-            Console.WriteLine("Hello there!");
+            Console.WriteLine("Hey there, Hello World!");
         }
 
         public void ParkSelected(Park selection)

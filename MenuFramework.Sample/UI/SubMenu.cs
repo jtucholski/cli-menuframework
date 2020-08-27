@@ -1,6 +1,6 @@
 using System;
 
-namespace MenuFramework
+namespace MenuFramework.Sample.UI
 {
     public class SubMenu : ConsoleMenu
     {        

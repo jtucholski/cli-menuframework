@@ -1,9 +1,10 @@
-﻿using System;
+﻿using MenuFramework.Sample.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MenuFramework.DAL
+namespace MenuFramework.Sample.DAL
 {
     public class ParkDao
     {
