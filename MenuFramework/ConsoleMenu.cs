@@ -105,6 +105,10 @@ namespace MenuFramework
             // Infinitely loop the menu
             while (true)
             {
+                // Call the virtual method to rebuild the options on the menu. Menus that are dynamic (data-driven) 
+                // in nature should override and re-build menuOptions with the latest data.
+                RebuildMenuOptions();
+
                 // At least once display the menu options,
                 // when the user presses Enter, invoke the option associated
                 // otherwise keep redrawing the screen as the "selection" changes
@@ -116,10 +120,6 @@ namespace MenuFramework
                     {
                         Console.WriteLine(config.Title);
                     }
-
-                    // Call the virtual method to rebuild the options on the menu. Menus that are dynamic (data-driven) 
-                    // in nature should override and re-build menuOptions with the latest data.
-                    RebuildMenuOptions();
 
                     OnBeforeShow();
 
