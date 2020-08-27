@@ -10,9 +10,9 @@ namespace MenuFramework.Sample.UI
         public MainMenu(ParkDao parkDao)
         {
             this.parkDao = parkDao;
-            this.AddOption("Hello World", HelloWorld, true)
-                .AddOption("Today", (new SubMenu()).Show)
-                .AddOption("Parks", new ParksMenu(parkDao).Show)
+            this.AddOption("Hello World", HelloWorld)
+                .AddOption("Today", ShowSubMenu)
+                .AddOption("Parks", ShowParksMenu)
                 .AddOption("Close", Close)
                 .Configure(config => {
                     config.SelectedItemBackgroundColor = ConsoleColor.Red;
@@ -21,9 +21,22 @@ namespace MenuFramework.Sample.UI
                 });
         }
 
-        private static void HelloWorld()
+        private static MenuOptionResult HelloWorld()
         {
             Console.WriteLine("Hey there, Hello World!");
+            return MenuOptionResult.WaitAfterMenuSelection;
+        }
+
+        private MenuOptionResult ShowSubMenu()
+        {
+            (new SubMenu()).Show();
+            return MenuOptionResult.Default;
+        }
+
+        private MenuOptionResult ShowParksMenu()
+        {
+            new ParksMenu(parkDao).Show();
+            return MenuOptionResult.Default;
         }
 
         public void ParkSelected(Park selection)

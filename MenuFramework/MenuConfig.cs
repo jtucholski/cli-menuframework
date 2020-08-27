@@ -21,9 +21,6 @@ namespace MenuFramework
 
         /// <summary>default: true</summary>        
         public bool ClearConsole { get; set; } = true;
-
-        /// <summary>default: false</summary>        
-        public bool CloseMenuOnSelection { get; set; } = false;
         
         /// <summary>default: true</summary>        
         public bool WaitAfterMenuSelection { get; set; } = true;

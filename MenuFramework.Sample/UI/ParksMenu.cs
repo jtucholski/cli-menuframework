@@ -23,13 +23,14 @@ namespace MenuFramework.Sample.UI
         protected override void RebuildMenuOptions()
         {
             menuOptions.Clear();
-            this.AddOptionRange<Park>(parkDao.GetList(), ShowParkMenu, false)
+            this.AddOptionRange<Park>(parkDao.GetList(), ShowParkMenu)
                 .AddOption("Close", Close);
         }
 
-        public void ShowParkMenu(Park park)
+        public MenuOptionResult ShowParkMenu(Park park)
         {
             new ParkMenu(parkDao, park).Show();
+            return MenuOptionResult.DoNotWaitAfterMenuSelection;
         }
     }
 }

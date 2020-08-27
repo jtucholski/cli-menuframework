@@ -14,9 +14,13 @@ namespace MenuFramework
 
         public ConsoleMenu() { }
 
-        public static void Close()
+        /// <summary>
+        /// Helper that can be added directly to a MenuOption to close (dismiss) the menu.
+        /// </summary>
+        /// <returns></returns>
+        public MenuOptionResult Close()
         {
-            throw new InvalidOperationException("This method is not meant to be invoked.");
+            return MenuOptionResult.CloseMenuAfterSelection;
         }
 
         /// <summary>
@@ -32,9 +36,9 @@ namespace MenuFramework
         /// </summary>
         /// <param name="text">The text to display</param>
         /// <param name="action">An action to invoke.</param>
-        public ConsoleMenu AddOption(string text, Action action, bool? waitOnSelection = null)
+        public ConsoleMenu AddOption(string text, Func<MenuOptionResult> action)
         {
-            MenuOption option = new MenuOption(text, action, waitOnSelection);
+            MenuOption option = new MenuOption(text, action);
             menuOptions.Add(option);
             return this;
         }
@@ -56,9 +60,9 @@ namespace MenuFramework
         /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
         /// <param name="item">The object to pass the method when invoked.</param>
         /// <returns></returns>
-        public ConsoleMenu AddOption<T>(string text, Action<T> action, T item, bool? waitOnSelection = null)
+        public ConsoleMenu AddOption<T>(string text, Func<T, MenuOptionResult> action, T item)
         {
-            AddOption(text, () => action(item), waitOnSelection);
+            AddOption(text, () => action(item));
             return this;
         }
 
@@ -68,9 +72,9 @@ namespace MenuFramework
         /// <param name="item">The item create as a menu option.</param>
         /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
         /// <returns></returns>
-        public ConsoleMenu AddOption<T>(T item, Action<T> action, bool? waitOnSelection = null)
+        public ConsoleMenu AddOption<T>(T item, Func<T, MenuOptionResult> action)
         {
-            AddOption(new MenuOption<T>(() => action(item), item, waitOnSelection));
+            AddOption(new MenuOption<T>(() => action(item), item));
             return this;
         }
 
@@ -80,11 +84,11 @@ namespace MenuFramework
         /// <param name="items">A collection of items to create as menu options.</param>
         /// <param name="action">The method to invoke. The method must have a single argument of type T.</param>        
         /// <returns></returns>
-        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Action<T> action, bool? waitOnSelection = null)
+        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Func<T, MenuOptionResult> action)
         {
             foreach (T item in items)
             {
-                AddOption(new MenuOption<T>(() => action(item), item, waitOnSelection));
+                AddOption(new MenuOption<T>(() => action(item), item));
             }
 
             return this;
@@ -161,23 +165,18 @@ namespace MenuFramework
                     Console.Clear();
                 }
 
-                // If the action is Close
-                if (selectedOption.Command == ConsoleMenu.Close)
-                {
-                    return;
-                }
-
                 // Invoke the associated option
-                selectedOption.Command();
+                MenuOptionResult result = selectedOption.Command();
 
-                CheckForWait(selectedOption);
+                // Check Result and act accordingly
 
-                // Automatically close the menu?
-                if (config.CloseMenuOnSelection)
+                // If the action returned Close
+                if (result == MenuOptionResult.CloseMenuAfterSelection)
                 {
                     return;
                 }
 
+                CheckForWait(result);
             }
         }
 
@@ -223,11 +222,25 @@ namespace MenuFramework
             }
         }
 
-        private void CheckForWait(MenuOption option)
+        private void CheckForWait(MenuOptionResult result)
         {
-            // If the Option overrides, it wins. Else use the overall config value
-            if (option.WaitAfterSelection.HasValue && option.WaitAfterSelection.Value ||
-                !option.WaitAfterSelection.HasValue && config.WaitAfterMenuSelection)
+            // Start with the value configured in the menu
+            bool wait = config.WaitAfterMenuSelection;
+
+            // Check the result of the command for an override
+            switch (result)
+            {
+                case MenuOptionResult.CloseMenuAfterSelection:
+                case MenuOptionResult.DoNotWaitAfterMenuSelection:
+                case MenuOptionResult.ExitAfterSelection:
+                    wait = false;
+                    break;
+
+                case MenuOptionResult.WaitAfterMenuSelection:
+                    wait = true;
+                    break;
+            }
+            if (wait)
             {
                 Console.ReadKey();
             }

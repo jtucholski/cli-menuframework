@@ -25,7 +25,7 @@ namespace MenuFramework.Sample.UI
 
         }
 
-        private void Deletepark()
+        private MenuOptionResult Deletepark()
         {
             Console.Write($"Are you sure you want to delete {park.Name}?");
             if (Console.ReadLine().ToLower() == "y")
@@ -33,9 +33,10 @@ namespace MenuFramework.Sample.UI
                 parkDao.Delete(park.ParkId);
                 Console.WriteLine("Park was deleted.");
             }
+            return MenuOptionResult.Default;
         }
 
-        private void UpdatePark()
+        private MenuOptionResult UpdatePark()
         {
             
             
@@ -48,6 +49,7 @@ namespace MenuFramework.Sample.UI
 
             parkDao.Update(updatedPark);
             Console.WriteLine("Park was updated.");
+            return MenuOptionResult.Default;
         }
     }
 }
