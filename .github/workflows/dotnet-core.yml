@@ -7,10 +7,8 @@ on:
     branches: [ production ]
 
 jobs:
-  build:
-
+  build:    
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -23,3 +21,12 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/production'
+    steps:
+    - name: Publish MenuFramework
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        PROJECT_FILE_PATH: MenuFramework/MenuFramework.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
