@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <PackageId>ConsoleMenuFramework</PackageId>
+    <Version>1.1.0</Version>
+    <Authors>Josh Tucholski</Authors>
+    <Company>Tech Elevator</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>
