@@ -14,10 +14,37 @@ namespace MenuFramework
 
         public ConsoleMenu() { }
 
-        public static void Close()
+        #region Command methods that can be referred to by any derived menu for convenience
+        /// <summary>
+        /// Helper that can be added directly to a MenuOption to close (dismiss) the menu.
+        /// </summary>
+        /// <returns></returns>
+        protected MenuOptionResult Close()
         {
-            throw new InvalidOperationException("This method is not meant to be invoked.");
+            return MenuOptionResult.CloseMenuAfterSelection;
         }
+
+        /// <summary>
+        /// Helper that can be added directly to a MenuOption to Exit (dismiss this menu and  ALL parent menus).
+        /// </summary>
+        /// <returns></returns>
+        protected MenuOptionResult Exit()
+        {
+            return MenuOptionResult.ExitAfterSelection;
+        }
+
+        /// <summary>
+        /// Helper that can be added directly to a MenuOption to do a simple call to show a sub-menu
+        /// </summary>
+        /// <typeparam name="TMenu"></typeparam>
+        /// <returns></returns>
+        protected MenuOptionResult ShowMenu<TMenu>() where TMenu : ConsoleMenu, new()
+        {
+            TMenu menu = new TMenu();
+            return menu.Show();
+        }
+
+        #endregion
 
         /// <summary>
         /// A derived menu can override this method if it needs to "dynamically" build menu options.
@@ -32,9 +59,9 @@ namespace MenuFramework
         /// </summary>
         /// <param name="text">The text to display</param>
         /// <param name="action">An action to invoke.</param>
-        public ConsoleMenu AddOption(string text, Action action, bool? waitOnSelection = null)
+        public ConsoleMenu AddOption(string text, Func<MenuOptionResult> action)
         {
-            MenuOption option = new MenuOption(text, action, waitOnSelection);
+            MenuOption option = new MenuOption(text, action);
             menuOptions.Add(option);
             return this;
         }
@@ -56,9 +83,9 @@ namespace MenuFramework
         /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
         /// <param name="item">The object to pass the method when invoked.</param>
         /// <returns></returns>
-        public ConsoleMenu AddOption<T>(string text, Action<T> action, T item, bool? waitOnSelection = null)
+        public ConsoleMenu AddOption<T>(string text, Func<T, MenuOptionResult> action, T item)
         {
-            AddOption(text, () => action(item), waitOnSelection);
+            AddOption(text, () => action(item));
             return this;
         }
 
@@ -68,9 +95,9 @@ namespace MenuFramework
         /// <param name="item">The item create as a menu option.</param>
         /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
         /// <returns></returns>
-        public ConsoleMenu AddOption<T>(T item, Action<T> action, bool? waitOnSelection = null)
+        public ConsoleMenu AddOption<T>(T item, Func<T, MenuOptionResult> action)
         {
-            AddOption(new MenuOption<T>(() => action(item), item, waitOnSelection));
+            AddOption(new MenuOption<T>(() => action(item), item));
             return this;
         }
 
@@ -80,11 +107,11 @@ namespace MenuFramework
         /// <param name="items">A collection of items to create as menu options.</param>
         /// <param name="action">The method to invoke. The method must have a single argument of type T.</param>        
         /// <returns></returns>
-        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Action<T> action, bool? waitOnSelection = null)
+        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Func<T, MenuOptionResult> action)
         {
             foreach (T item in items)
             {
-                AddOption(new MenuOption<T>(() => action(item), item, waitOnSelection));
+                AddOption(new MenuOption<T>(() => action(item), item));
             }
 
             return this;
@@ -93,7 +120,7 @@ namespace MenuFramework
         /// <summary>
         /// Displays the menu.
         /// </summary>
-        public void Show()
+        public MenuOptionResult Show()
         {
             ConsoleKey key;
             int currentSelectionIndex = 0;
@@ -101,31 +128,61 @@ namespace MenuFramework
             // Infinitely loop the menu
             while (true)
             {
+                // Call the virtual method to rebuild the options on the menu. Menus that are dynamic (data-driven) 
+                // in nature should override and re-build menuOptions with the latest data.
+                RebuildMenuOptions();
+
                 // At least once display the menu options,
                 // when the user presses Enter, invoke the option associated
                 // otherwise keep redrawing the screen as the "selection" changes
+
+                // Before the first draw - initialize some variables
+                int previousSelectionIndex = -1;
+                int menuTop = 0;
+                int menuBottom = 0;
+
                 do
                 {
-                    Console.Clear();
 
                     if (!String.IsNullOrEmpty(config.Title))
                     {
                         Console.WriteLine(config.Title);
                     }
 
-                    // Call the virtual method to rebuild the options on the menu. Menus that are dynamic (data-driven) 
-                    // in nature should override and re-build menuOptions with the latest data.
-                    RebuildMenuOptions();
-
-                    OnBeforeShow();
-
-                    // Print the options
-                    for (int i = 0; i < menuOptions.Count; i++)
+                    // The first time in this loop is a full *re-draw* of the menu. After the first time, when the user presses the arrow keys,
+                    // 
+                    if (previousSelectionIndex < 0)
                     {
-                        bool isSelectedOption = (currentSelectionIndex == i);
-                        MenuOption option = menuOptions[i];
-                        PrintMenuOption(option, isSelectedOption);
-                        Console.WriteLine();
+                        Console.Clear();
+                        OnBeforeShow();
+
+                        // Get the position where we start drawing the menu
+                        menuTop = Console.CursorTop;
+
+                        // Print the options
+                        for (int i = 0; i < menuOptions.Count; i++)
+                        {
+                            bool isSelectedOption = (currentSelectionIndex == i);
+                            MenuOption option = menuOptions[i];
+                            PrintMenuOption(option, isSelectedOption);
+                            Console.WriteLine();
+                        }
+                        // Get the position where the menu is finished drawing
+                        menuBottom = Console.CursorTop;
+                    }
+                    else
+                    {
+                        // Draw a single item over the previously selected item, and the currently selected item
+                        Console.CursorTop = menuTop + previousSelectionIndex;
+                        Console.CursorLeft = 0;
+                        PrintMenuOption(menuOptions[previousSelectionIndex], false);
+ 
+                        Console.CursorTop = menuTop + currentSelectionIndex;
+                        Console.CursorLeft = 0;
+                        PrintMenuOption(menuOptions[currentSelectionIndex], true);
+
+                        Console.CursorTop = menuBottom;
+                        Console.CursorLeft = 0;
                     }
 
                     // Let the user press a key
@@ -136,18 +193,25 @@ namespace MenuFramework
                         // This is a HACK! It seems the ESC character somehow "swallows" the next character printed to the screen.  
                         // So I am printing a garbage character, never to be seen. Weird.
                         Console.WriteLine("X");
-                        return;
+                        return MenuOptionResult.DoNotWaitAfterMenuSelection;
                     }
 
                     if (key == ConsoleKey.DownArrow)
                     {
                         // Select the next option
+                        previousSelectionIndex = currentSelectionIndex;
                         currentSelectionIndex = GetIndexOfNextItem(currentSelectionIndex);
                     }
                     else if (key == ConsoleKey.UpArrow)
                     {
                         // Select previous option
+                        previousSelectionIndex = currentSelectionIndex;
                         currentSelectionIndex = GetIndexOfPrevItem(currentSelectionIndex);
+                    }
+                    else
+                    {
+                        // User typed something illegal. Reset so the menu gets re-drawn
+                        previousSelectionIndex = -1;
                     }
 
                 } while (key != ConsoleKey.Enter);
@@ -161,23 +225,27 @@ namespace MenuFramework
                     Console.Clear();
                 }
 
-                // If the action is Close
-                if (selectedOption.Command == ConsoleMenu.Close)
-                {
-                    return;
-                }
-
                 // Invoke the associated option
-                selectedOption.Command();
+                MenuOptionResult result = selectedOption.Command();
 
-                CheckForWait(selectedOption);
+                // Check Result and act accordingly
 
-                // Automatically close the menu?
-                if (config.CloseMenuOnSelection)
+                // If the action returned Exit
+                if (result == MenuOptionResult.ExitAfterSelection)
                 {
-                    return;
+                    return MenuOptionResult.ExitAfterSelection;
+                }
+                // If the action returned Close
+                if (result == MenuOptionResult.CloseMenuAfterSelection)
+                {
+                    return MenuOptionResult.DoNotWaitAfterMenuSelection;
                 }
 
+                // Insert a pause so the user must press a key if directed to
+                if (result == MenuOptionResult.WaitAfterMenuSelection)
+                {
+                    Console.ReadKey();
+                }
             }
         }
 
@@ -220,16 +288,6 @@ namespace MenuFramework
             else //Otherwise selected one is one of the later options in the list
             {
                 return currentIndex - 1;
-            }
-        }
-
-        private void CheckForWait(MenuOption option)
-        {
-            // If the Option overrides, it wins. Else use the overall config value
-            if (option.WaitAfterSelection.HasValue && option.WaitAfterSelection.Value ||
-                !option.WaitAfterSelection.HasValue && config.WaitAfterMenuSelection)
-            {
-                Console.ReadKey();
             }
         }
 

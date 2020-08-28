@@ -22,10 +22,17 @@ namespace MenuFramework.Sample.UI
                     config.SelectedItemBackgroundColor = ConsoleColor.White;
                     config.SelectedItemForegroundColor = ConsoleColor.DarkGreen;
                 });
-
         }
 
-        private void Deletepark()
+        protected override void OnBeforeShow()
+        {
+            Console.WriteLine($"Id: {park.ParkId}");
+            Console.WriteLine($"Name: {park.Name}");
+            Console.WriteLine($"State: {park.State}");
+            Console.WriteLine();
+        }
+
+        private MenuOptionResult Deletepark()
         {
             Console.Write($"Are you sure you want to delete {park.Name}?");
             if (Console.ReadLine().ToLower() == "y")
@@ -33,12 +40,11 @@ namespace MenuFramework.Sample.UI
                 parkDao.Delete(park.ParkId);
                 Console.WriteLine("Park was deleted.");
             }
+            return MenuOptionResult.CloseMenuAfterSelection;
         }
 
-        private void UpdatePark()
+        private MenuOptionResult UpdatePark()
         {
-            
-            
             Park updatedPark = new Park(park.ParkId, park.Name, park.State);
             Console.Write("Name: ");
             updatedPark.Name = Console.ReadLine();
@@ -48,6 +54,7 @@ namespace MenuFramework.Sample.UI
 
             parkDao.Update(updatedPark);
             Console.WriteLine("Park was updated.");
+            return MenuOptionResult.CloseMenuAfterSelection;
         }
     }
 }
