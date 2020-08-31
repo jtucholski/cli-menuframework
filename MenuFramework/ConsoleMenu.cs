@@ -140,7 +140,8 @@ namespace MenuFramework
                 int previousSelectionIndex = -1;
                 int menuTop = 0;
                 int menuBottom = 0;
-
+                // While we are inside the "drawing" loop, hide the cursor
+                Console.CursorVisible = false;
                 do
                 {
 
@@ -153,6 +154,8 @@ namespace MenuFramework
                     // 
                     if (previousSelectionIndex < 0)
                     {
+                        // Set previous index so we don't redraw again
+                        previousSelectionIndex = 0;
                         Console.Clear();
                         OnBeforeShow();
 
@@ -176,7 +179,7 @@ namespace MenuFramework
                         Console.CursorTop = menuTop + previousSelectionIndex;
                         Console.CursorLeft = 0;
                         PrintMenuOption(menuOptions[previousSelectionIndex], false);
- 
+
                         Console.CursorTop = menuTop + currentSelectionIndex;
                         Console.CursorLeft = 0;
                         PrintMenuOption(menuOptions[currentSelectionIndex], true);
@@ -186,13 +189,17 @@ namespace MenuFramework
                     }
 
                     // Let the user press a key
-                    key = Console.ReadKey().Key;
+                    key = Console.ReadKey(true).Key; // do not show the key press on the screen
 
                     if (key == ConsoleKey.Escape && config.CloseOnEscape)
                     {
                         // This is a HACK! It seems the ESC character somehow "swallows" the next character printed to the screen.  
                         // So I am printing a garbage character, never to be seen. Weird.
                         Console.WriteLine("X");
+
+                        // Since we are exiting the method, we probably should re-show the cursor.
+                        Console.CursorVisible = true;
+
                         return MenuOptionResult.DoNotWaitAfterMenuSelection;
                     }
 
@@ -208,14 +215,21 @@ namespace MenuFramework
                         previousSelectionIndex = currentSelectionIndex;
                         currentSelectionIndex = GetIndexOfPrevItem(currentSelectionIndex);
                     }
-                    else
+                    else if (key != ConsoleKey.Enter)
                     {
-                        // User typed something illegal. Reset so the menu gets re-drawn
-                        previousSelectionIndex = -1;
+                        // User pressed a key the menu is not expecting
+                        if (config.BeepOnError)
+                        {
+                            // Let the user know they pressed a bad key
+                            Console.Beep();
+                        }
                     }
+
 
                 } while (key != ConsoleKey.Enter);
 
+                // Since we are going to execute a command, we should re-show the cursor.
+                Console.CursorVisible = true;
 
                 // User pressed enter, so invoke the command
                 MenuOption selectedOption = menuOptions[currentSelectionIndex];
@@ -244,7 +258,7 @@ namespace MenuFramework
                 // Insert a pause so the user must press a key if directed to
                 if (result == MenuOptionResult.WaitAfterMenuSelection)
                 {
-                    Console.ReadKey();
+                    Console.ReadKey(true); // do not show the key press on the screen
                 }
             }
         }
@@ -263,7 +277,7 @@ namespace MenuFramework
         /// <summary>
         /// Override this if specific code needs to execute before the menu is shown.
         /// </summary>
-        protected virtual void OnBeforeShow() { }        
+        protected virtual void OnBeforeShow() { }
 
         private int GetIndexOfNextItem(int currentIndex)
         {

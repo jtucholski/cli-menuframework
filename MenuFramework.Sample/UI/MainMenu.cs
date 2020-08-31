@@ -9,14 +9,19 @@ namespace MenuFramework.Sample.UI
         ParkDao parkDao;
         public MainMenu(ParkDao parkDao)
         {
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Black;
             this.parkDao = parkDao;
             this.AddOption("Hello World", HelloWorld)
                 .AddOption("Today", ShowMenu<TodayMenu>)
                 .AddOption("Parks", ShowParksMenu)
                 .AddOption("Close", Close)
                 .Configure(config => {
-                    config.SelectedItemBackgroundColor = ConsoleColor.Red;
-                    config.SelectedItemForegroundColor = ConsoleColor.White;
+                    config.ItemBackgroundColor = ConsoleColor.White;
+                    config.ItemForegroundColor = ConsoleColor.Black;
+                    config.SelectedItemBackgroundColor = ConsoleColor.White;
+                    config.SelectedItemForegroundColor = ConsoleColor.Black;
+                    config.BeepOnError = true;
                 });
         }
 
