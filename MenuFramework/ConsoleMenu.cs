@@ -144,12 +144,6 @@ namespace MenuFramework
                 Console.CursorVisible = false;
                 do
                 {
-
-                    if (!String.IsNullOrEmpty(config.Title))
-                    {
-                        Console.WriteLine(config.Title);
-                    }
-
                     // The first time in this loop is a full *re-draw* of the menu. After the first time, when the user presses the arrow keys,
                     // 
                     if (previousSelectionIndex < 0)
@@ -277,7 +271,10 @@ namespace MenuFramework
         /// <summary>
         /// Override this if specific code needs to execute before the menu is shown.
         /// </summary>
-        protected virtual void OnBeforeShow() { }
+        protected virtual void OnBeforeShow()
+        {
+            Console.WriteLine(config.Title);
+        }
 
         private int GetIndexOfNextItem(int currentIndex)
         {

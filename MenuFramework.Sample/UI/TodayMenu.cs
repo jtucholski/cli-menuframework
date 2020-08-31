@@ -6,10 +6,15 @@ namespace MenuFramework.Sample.UI
     {        
         public TodayMenu()
         {
-           this.AddOption("Forecast", DisplayTodaysWeather)
-                .AddOption("Time", TellTheTime)
-                .AddOption("Close", Close)
-                .AddOption("Exit", Exit);
+            this.AddOption("Forecast", DisplayTodaysWeather)
+                 .AddOption("Time", TellTheTime)
+                 .AddOption("Close", Close)
+                 .AddOption("Exit", Exit)
+                 .Configure(config =>
+                 {
+                     config.Title = "*** Today ***";
+                 });
+
         }
 
         public MenuOptionResult DisplayTodaysWeather()
