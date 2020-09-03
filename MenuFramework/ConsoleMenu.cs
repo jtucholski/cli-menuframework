@@ -152,6 +152,8 @@ namespace MenuFramework
                         previousSelectionIndex = 0;
                         Console.Clear();
                         OnBeforeShow();
+                        Console.BackgroundColor = config.ItemBackgroundColor;
+                        Console.ForegroundColor = config.ItemForegroundColor;
 
                         // Get the position where we start drawing the menu
                         menuTop = Console.CursorTop;
@@ -189,7 +191,8 @@ namespace MenuFramework
                     {
                         // This is a HACK! It seems the ESC character somehow "swallows" the next character printed to the screen.  
                         // So I am printing a garbage character, never to be seen. Weird.
-                        Console.WriteLine("X");
+                        // Ok, now this seems to have gone away when I changed the ReadKeys to 'true'
+                        //Console.WriteLine("X");
 
                         // Since we are exiting the method, we probably should re-show the cursor.
                         Console.CursorVisible = true;
@@ -324,6 +327,261 @@ namespace MenuFramework
             Console.BackgroundColor = config.ItemBackgroundColor;
             Console.ForegroundColor = config.ItemForegroundColor;
         }
-    }
 
+        #region User Input Helper Methods - NOTE: these are all static public so they can be used from anywhere, not just derived menus
+        /// <summary>
+        /// This continually prompts the user until they enter a valid integer.
+        /// </summary>
+        /// <param name="message">The string to prompt the user with</param>
+        /// <returns>A valid integer entered by the user</returns>
+        static public int GetInteger(string message, int? defaultValue = null)
+        {
+            int resultValue = 0;
+            while (true)
+            {
+                Console.Write(message + " ");
+
+                // Check if there is a default option
+                if (defaultValue.HasValue)
+                {
+                    Console.Write($"(Press ENTER for {defaultValue}) ");
+                }
+
+                string userInput = Console.ReadLine().Trim();
+
+                // If the user pressed ENTER only, take the default
+                if (userInput.Length == 0 && defaultValue.HasValue)
+                {
+                    return defaultValue.Value;
+                }
+
+                if (int.TryParse(userInput, out resultValue))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("!!! Invalid input. Please enter a valid whole number.");
+                }
+            }
+            return resultValue;
+        }
+
+        /// <summary>
+        /// This continually prompts the user until they enter a valid double.
+        /// </summary>
+        /// <param name="message">The string to prompt the user with</param>
+        /// <returns>A valid double entered by the user</returns>
+        static public double GetDouble(string message, double? defaultValue = null)
+        {
+            double resultValue = 0;
+            while (true)
+            {
+                Console.Write(message + " ");
+
+                // Check if there is a default option
+                if (defaultValue.HasValue)
+                {
+                    Console.Write($"(Press ENTER for {defaultValue}) ");
+                }
+
+                string userInput = Console.ReadLine().Trim();
+
+                // If the user pressed ENTER only, take the default
+                if (userInput.Length == 0 && defaultValue.HasValue)
+                {
+                    return defaultValue.Value;
+                }
+
+                if (double.TryParse(userInput, out resultValue))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("!!! Invalid input. Please enter a valid decimal number.");
+                }
+            }
+            return resultValue;
+        }
+
+        /// <summary>
+        /// This continually prompts the user until they enter a valid decimal.
+        /// </summary>
+        /// <param name="message">The string to prompt the user with</param>
+        /// <returns>A valid decimal entered by the user</returns>
+        static public decimal GetDecimal(string message, decimal? defaultValue = null)
+        {
+            decimal resultValue = 0;
+            while (true)
+            {
+                Console.Write(message + " ");
+
+                // Check if there is a default option
+                if (defaultValue.HasValue)
+                {
+                    Console.Write($"(Press ENTER for {defaultValue}) ");
+                }
+
+                string userInput = Console.ReadLine().Trim();
+
+                // If the user pressed ENTER only, take the default
+                if (userInput.Length == 0 && defaultValue.HasValue)
+                {
+                    return defaultValue.Value;
+                }
+
+                if (decimal.TryParse(userInput, out resultValue))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("!!! Invalid input. Please enter a valid decimal number.");
+                }
+            }
+            return resultValue;
+        }
+
+        /// <summary>
+        /// This continually prompts the user until they enter a valid date
+        /// </summary>
+        /// <param name="message">The string to prompt the user with</param>
+        /// <returns>Date entered by the user</returns>
+        static public DateTime GetDate(string message, DateTime? defaultValue = null)
+        {
+            DateTime resultValue;
+            while (true)
+            {
+                Console.Write(message + " ");
+
+                // Check if there is a default option
+                if (defaultValue.HasValue)
+                {
+                    Console.Write($"(Press ENTER for {defaultValue.Value.ToShortDateString()}) ");
+                }
+
+                string userInput = Console.ReadLine().Trim();
+
+                // If the user pressed ENTER only, take the default
+                if (userInput.Length == 0 && defaultValue.HasValue)
+                {
+                    return defaultValue.Value;
+                }
+
+                if (DateTime.TryParse(userInput, out resultValue))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("!!! Invalid input. Please enter a valid Date.");
+                }
+            }
+            return resultValue;
+        }
+
+        /// <summary>
+        /// This continually prompts the user until they enter a valid bool.
+        /// </summary>
+        /// <param name="message">The string to prompt the user with</param>
+        /// <returns>True or false.  The user can type Y or true for true values, N or false for false values.</returns>
+        static public bool GetBool(string message, bool? defaultValue = null)
+        {
+            bool resultValue = false;
+            while (true)
+            {
+                Console.Write(message + " ");
+
+                // Check if there is a default option
+                if (defaultValue.HasValue)
+                {
+                    Console.Write($"(Press ENTER for {defaultValue}) ");
+                }
+
+                string userInput = Console.ReadLine().Trim();
+
+                // If the user pressed ENTER only, take the default
+                if (userInput.Length == 0 && defaultValue.HasValue)
+                {
+                    return defaultValue.Value;
+                }
+
+                if (userInput.ToUpper() == "Y")
+                {
+                    resultValue = true;
+                    break;
+                }
+                else if (userInput.ToUpper() == "N")
+                {
+                    resultValue = false;
+                    break;
+                }
+                else if (bool.TryParse(userInput, out resultValue))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("!!! Invalid input. Please enter [True, False, Y or N].");
+                }
+            }
+            return resultValue;
+
+        }
+
+        /// <summary>
+        /// This continually prompts the user until they enter a valid string (1 or more characters).
+        /// </summary>
+        /// <param name="message">The string to prompt the user with</param>
+        /// <returns>String entered by the user</returns>
+        static public string GetString(string message, bool allowEmptyString = false, string defaultValue = null)
+        {
+            while (true)
+            {
+                Console.Write(message + " ");
+
+                // Check if there is a default option
+                if (!String.IsNullOrEmpty(defaultValue))
+                {
+                    Console.Write($"(Press ENTER for '{defaultValue}') ");
+                }
+
+                string userInput = Console.ReadLine().Trim();
+
+                // If the user pressed ENTER only, take the default
+                if (userInput.Length > 0)
+                {
+                    return userInput;
+                }
+
+                // Empty input, what to do...
+                if (!String.IsNullOrEmpty(defaultValue))
+                {
+                    return defaultValue;
+                }
+
+                if (allowEmptyString)
+                {
+                    return userInput;
+                }
+
+                Console.WriteLine("!!! Invalid input. Please enter a valid string.");
+            }
+        }
+        #endregion
+
+        #region Change console colors
+
+        protected void SetColor(ConsoleColor foregroundColor)
+        {
+            Console.ForegroundColor = foregroundColor;
+        }
+
+        protected void ResetColor()
+        {
+            Console.ForegroundColor = config.ItemForegroundColor;
+        }
+        #endregion
+    }
 }
