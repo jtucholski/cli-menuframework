@@ -9,12 +9,20 @@ namespace MenuFramework
     public class ConsoleMenu
     {
         // Private Instance Variable
-        protected List<MenuOption> menuOptions = new List<MenuOption>();
+        private List<MenuOption> menuOptions = new List<MenuOption>();
         private readonly MenuConfig config = new MenuConfig();
 
         public ConsoleMenu() { }
 
         #region Command methods that can be referred to by any derived menu for convenience
+        /// <summary>
+        /// Clears the available menu options, allowing them to be updated.
+        /// </summary>
+        protected void ClearOptions()
+        {
+            menuOptions.Clear();
+        }        
+        
         /// <summary>
         /// Helper that can be added directly to a MenuOption to close (dismiss) the menu.
         /// </summary>

@@ -39,7 +39,7 @@ namespace MenuFramework.Sample.UI
 
         protected override void RebuildMenuOptions()
         {
-            menuOptions.Clear();
+            base.ClearOptions();
             this.AddOptionRange<Park>(parkDao.GetList(), ShowParkMenu)
                 .AddOption("Close", Close);
         }
