@@ -184,8 +184,8 @@ namespace MenuFramework
                         Console.CursorLeft = 0;
                     }
 
-                    // Let the user press a key
-                    key = Console.ReadKey(true).Key; // do not show the key press on the screen
+                    // Let the user press a key but don't show it
+                    key = Console.ReadKey(intercept: true).Key;
 
                     if (key == ConsoleKey.Escape && config.CloseOnEscape)
                     {
@@ -255,7 +255,7 @@ namespace MenuFramework
                 // Insert a pause so the user must press a key if directed to
                 if (result == MenuOptionResult.WaitAfterMenuSelection)
                 {
-                    Console.ReadKey(true); // do not show the key press on the screen
+                    Console.ReadKey(intercept: true);
                 }
             }
         }
