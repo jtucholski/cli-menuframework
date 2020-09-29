@@ -3,9 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <PackageId>ConsoleMenuFramework</PackageId>
-    <Version>1.2.0</Version>
-    <Authors>Josh Tucholski</Authors>
+    <Version>1.2.1</Version>
+    <Description>A customizable and configurable CLI Menu Framework.</Description>
+    <Authors>Josh Tucholski, Mike Morel</Authors>
     <Company>Tech Elevator</Company>
+    <RepositoryUrl>https://github.com/jtucholski/cli-menuframework.git</RepositoryUrl> 
+    <RepositoryType>git</RepositoryType> 
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
