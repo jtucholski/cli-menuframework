@@ -34,26 +34,27 @@ namespace MenuFramework.Sample.UI
 
         private MenuOptionResult Deletepark()
         {
-            Console.Write($"Are you sure you want to delete {park.Name}?");
-            if (Console.ReadLine().ToLower() == "y")
+            bool delete = ConsoleMenu.GetBool($"Are you sure you want to delete {park.Name}?");
+
+            if (delete)
             {
                 parkDao.Delete(park.ParkId);
                 Console.WriteLine("Park was deleted.");
             }
+
             return MenuOptionResult.CloseMenuAfterSelection;
         }
 
         private MenuOptionResult UpdatePark()
         {
             Park updatedPark = new Park(park.ParkId, park.Name, park.State);
-            Console.Write("Name: ");
-            updatedPark.Name = Console.ReadLine();
-
-            Console.Write("State: ");
-            updatedPark.State = Console.ReadLine();
+         
+            updatedPark.Name = ConsoleMenu.GetString("Name:");
+            updatedPark.State = ConsoleMenu.GetString("State:");
 
             parkDao.Update(updatedPark);
             Console.WriteLine("Park was updated.");
+            
             return MenuOptionResult.CloseMenuAfterSelection;
         }
     }
