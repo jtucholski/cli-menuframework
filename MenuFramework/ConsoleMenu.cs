@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MenuFramework
 {
@@ -254,11 +255,20 @@ namespace MenuFramework
                 {
                     return MenuOptionResult.ExitAfterSelection;
                 }
+
                 // If the action returned Close
                 if (result == MenuOptionResult.CloseMenuAfterSelection)
                 {
                     return MenuOptionResult.DoNotWaitAfterMenuSelection;
                 }
+                
+                // If the action says to wait before closing
+                if (result == MenuOptionResult.WaitThenCloseAfterSelection)
+                {
+                    Console.ReadKey(intercept: true);
+                    return MenuOptionResult.DoNotWaitAfterMenuSelection;
+                }
+
 
                 // Insert a pause so the user must press a key if directed to
                 if (result == MenuOptionResult.WaitAfterMenuSelection)
@@ -342,7 +352,7 @@ namespace MenuFramework
         /// </summary>
         /// <param name="message">The string to prompt the user with</param>
         /// <returns>A valid integer entered by the user</returns>
-        static public int GetInteger(string message, int? defaultValue = null)
+        static public int GetInteger(string message, int? defaultValue = null, IEnumerable<int> allowableValues = null)
         {
             int resultValue = 0;
             while (true)
@@ -365,7 +375,14 @@ namespace MenuFramework
 
                 if (int.TryParse(userInput, out resultValue))
                 {
-                    break;
+                    if (allowableValues != null && !allowableValues.Contains(resultValue))
+                    {
+                        Console.WriteLine($"!!! Invalid input. Must provide one of the following values {String.Join(", ", allowableValues)}");
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
                 else
                 {
@@ -380,7 +397,7 @@ namespace MenuFramework
         /// </summary>
         /// <param name="message">The string to prompt the user with</param>
         /// <returns>A valid double entered by the user</returns>
-        static public double GetDouble(string message, double? defaultValue = null)
+        static public double GetDouble(string message, double? defaultValue = null, IEnumerable<double> allowableValues = null)
         {
             double resultValue = 0;
             while (true)
@@ -403,7 +420,14 @@ namespace MenuFramework
 
                 if (double.TryParse(userInput, out resultValue))
                 {
-                    break;
+                    if (allowableValues != null && !allowableValues.Contains(resultValue))
+                    {
+                        Console.WriteLine($"!!! Invalid input. Must provide one of the following values {String.Join(", ", allowableValues)}");
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
                 else
                 {
@@ -418,7 +442,7 @@ namespace MenuFramework
         /// </summary>
         /// <param name="message">The string to prompt the user with</param>
         /// <returns>A valid decimal entered by the user</returns>
-        static public decimal GetDecimal(string message, decimal? defaultValue = null)
+        static public decimal GetDecimal(string message, decimal? defaultValue = null, IEnumerable<decimal> allowableValues = null)
         {
             decimal resultValue = 0;
             while (true)
@@ -441,7 +465,14 @@ namespace MenuFramework
 
                 if (decimal.TryParse(userInput, out resultValue))
                 {
-                    break;
+                    if (allowableValues != null && !allowableValues.Contains(resultValue))
+                    {
+                        Console.WriteLine($"!!! Invalid input. Must provide one of the following values {String.Join(", ", allowableValues)}");
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
                 else
                 {

@@ -56,6 +56,7 @@ Any method that is called when a menu option is selected, must return a `MenuOpt
 
 * `WaitAfterMenuSelection` - The program will pause after the command is executed and the user will need to press any key to continue.
 * `DoNotWaitAfterMenuSelection` - The program will NOT pause after the command is executed and the menu options will be re-drawn immediately.
+* `WaitThenCloseAfterSelection` - The program will pause after the command is executed before closing the menu containing the option.
 * `CloseMenuAfterSelection` - The menu containing the selected option will close after the command is executed.
 * `ExitAfterSelection` - The menu, and all parent menus, will close after the command is executed.
 
