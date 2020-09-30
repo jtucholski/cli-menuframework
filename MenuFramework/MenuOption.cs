@@ -67,7 +67,11 @@ namespace MenuFramework
         /// <summary>
         /// The progam will NOT pause after execution of the menu command. The menu will be re-drawn immediately after the command is executed
         /// </summary>
-        DoNotWaitAfterMenuSelection,
+        DoNotWaitAfterMenuSelection,        
+        /// <summary>
+        /// The menu containing the selected option will pause after execution of the command and then close.
+        /// </summary>
+        WaitThenCloseAfterSelection, 
         /// <summary>
         /// The menu containing the selected option will close after execution of the command.
         /// </summary>
