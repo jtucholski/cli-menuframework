@@ -13,4 +13,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Git\TE\cli-menuframework\MenuFramework\MenuFramework.xml</DocumentationFile>
+  </PropertyGroup>
+
 </Project>

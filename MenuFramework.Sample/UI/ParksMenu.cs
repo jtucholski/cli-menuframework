@@ -40,7 +40,7 @@ namespace MenuFramework.Sample.UI
         protected override void RebuildMenuOptions()
         {
             base.ClearOptions();
-            this.AddOptionRange<Park>(parkDao.GetList(), ShowParkMenu)
+            this.AddOptionRange<Park>(parkDao.GetList(), ShowParkMenu, GetMenuText)
                 .AddOption("Close", Close);
         }
 
@@ -48,5 +48,11 @@ namespace MenuFramework.Sample.UI
         {
             return new ParkMenu(parkDao, park).Show();
         }
+
+        private string GetMenuText(Park park)
+        {
+            return $"{park.Name.ToUpper()}, {park.State}";
+        }
+
     }
 }

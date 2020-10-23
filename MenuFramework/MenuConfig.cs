@@ -2,6 +2,9 @@ using System;
 
 namespace MenuFramework
 {
+    /// <summary>
+    /// Class that contains all the configurable options for a ConsoleMenu
+    /// </summary>
     public class MenuConfig
     {
         /// <summary>default Console.BackgroundColor</summary>        
@@ -22,6 +25,9 @@ namespace MenuFramework
         /// <summary>default: true</summary>        
         public bool ClearConsole { get; set; } = true;
 
+        /// <summary>
+        /// default: false
+        /// </summary>
         public bool BeepOnError { get; set; } = false;
 
         /// <summary>default: true</summary>        

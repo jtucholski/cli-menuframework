@@ -13,6 +13,9 @@ namespace MenuFramework
         private List<MenuOption> menuOptions = new List<MenuOption>();
         private readonly MenuConfig config = new MenuConfig();
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public ConsoleMenu() { }
 
         #region Command methods that can be referred to by any derived menu for convenience
@@ -22,13 +25,13 @@ namespace MenuFramework
         protected void ClearOptions()
         {
             menuOptions.Clear();
-        }        
-        
+        }
+
         /// <summary>
         /// Helper that can be added directly to a MenuOption to close (dismiss) the menu.
         /// </summary>
-        /// <returns></returns>
-        protected MenuOptionResult Close()
+        /// <returns>A MenuOptionResult that tells the owning menu to Close.</returns>
+        public static MenuOptionResult Close()
         {
             return MenuOptionResult.CloseMenuAfterSelection;
         }
@@ -36,8 +39,8 @@ namespace MenuFramework
         /// <summary>
         /// Helper that can be added directly to a MenuOption to Exit (dismiss this menu and  ALL parent menus).
         /// </summary>
-        /// <returns></returns>
-        protected MenuOptionResult Exit()
+        /// <returns>A MenuOptionResult that tells the owning menu to Exit.</returns>
+        public static MenuOptionResult Exit()
         {
             return MenuOptionResult.ExitAfterSelection;
         }
@@ -45,8 +48,8 @@ namespace MenuFramework
         /// <summary>
         /// Helper that can be added directly to a MenuOption to do a simple call to show a sub-menu
         /// </summary>
-        /// <typeparam name="TMenu"></typeparam>
-        /// <returns></returns>
+        /// <typeparam name="TMenu">The type of menu (a ConsoleMenu) that should be created and displayed.</typeparam>
+        /// <returns>Passes back the return value from the menu once it closes.</returns>
         protected MenuOptionResult ShowMenu<TMenu>() where TMenu : ConsoleMenu, new()
         {
             TMenu menu = new TMenu();
@@ -68,6 +71,7 @@ namespace MenuFramework
         /// </summary>
         /// <param name="text">The text to display</param>
         /// <param name="action">An action to invoke.</param>
+        /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
         public ConsoleMenu AddOption(string text, Func<MenuOptionResult> action)
         {
             MenuOption option = new MenuOption(text, action);
@@ -79,6 +83,7 @@ namespace MenuFramework
         /// Adds a new option to the menu.
         /// </summary>
         /// <param name="option">A MenuOption object.</param>
+        /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
         public ConsoleMenu AddOption(MenuOption option)
         {
             menuOptions.Add(option);
@@ -91,7 +96,7 @@ namespace MenuFramework
         /// <param name="text">Text to display.</param>
         /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
         /// <param name="item">The object to pass the method when invoked.</param>
-        /// <returns></returns>
+        /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
         public ConsoleMenu AddOption<T>(string text, Func<T, MenuOptionResult> action, T item)
         {
             AddOption(text, () => action(item));
@@ -101,12 +106,13 @@ namespace MenuFramework
         /// <summary>
         /// Adds a data bound option to the menu. The item is passed back to the callback method.
         /// </summary>
-        /// <param name="item">The item create as a menu option.</param>
-        /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
-        /// <returns></returns>
-        public ConsoleMenu AddOption<T>(T item, Func<T, MenuOptionResult> action)
+        /// <param name="item">The item created as a menu option.</param>
+        /// <param name="action">The method to invoke. The method must allow a single argument of type into which the item will be passed.</param>
+        /// <param name="getMenuText">A method to get the display text for the menu item. It should take a parameter which is the item, and return a string which is the display text.  If this argument is null, item.ToString will be called to get the menu text.</param>
+        /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
+        public ConsoleMenu AddOption<T>(T item, Func<T, MenuOptionResult> action, Func<T, string> getMenuText = null)
         {
-            AddOption(new MenuOption<T>(() => action(item), item));
+            AddOption(new MenuOption<T>(() => action(item), item, getMenuText));
             return this;
         }
 
@@ -114,13 +120,14 @@ namespace MenuFramework
         /// Adds multiple options to the menu at once.
         /// </summary>
         /// <param name="items">A collection of items to create as menu options.</param>
-        /// <param name="action">The method to invoke. The method must have a single argument of type T.</param>        
-        /// <returns></returns>
-        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Func<T, MenuOptionResult> action)
+        /// <param name="action">The method to invoke. The method must allow a single argument of type into which the item will be passed.</param>
+        /// <param name="getMenuText">A method to get the display text for the menu item. It should take a parameter which is the item, and return a string which is the display text.  If this argument is null, item.ToString will be called to get the menu text.</param>
+        /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
+        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Func<T, MenuOptionResult> action, Func<T, string> getMenuText = null)
         {
             foreach (T item in items)
             {
-                AddOption(new MenuOption<T>(() => action(item), item));
+                AddOption(new MenuOption<T>(() => action(item), item, getMenuText));
             }
 
             return this;
@@ -175,6 +182,12 @@ namespace MenuFramework
                             PrintMenuOption(option, isSelectedOption);
                             Console.WriteLine();
                         }
+
+                        // This is a hook where the derived class can print something under the menu text
+                        OnAfterShow();
+                        Console.BackgroundColor = config.ItemBackgroundColor;
+                        Console.ForegroundColor = config.ItemForegroundColor;
+
                         // Get the position where the menu is finished drawing
                         menuBottom = Console.CursorTop;
                     }
@@ -282,7 +295,7 @@ namespace MenuFramework
         /// Enables the ability to overwrite any of the default configuration settings.
         /// </summary>
         /// <param name="action">An Action that accepts a MenuConfig arugment.</param>
-        /// <returns></returns>
+        /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
         public ConsoleMenu Configure(Action<MenuConfig> action)
         {
             action.Invoke(config);
@@ -296,6 +309,11 @@ namespace MenuFramework
         {
             Console.WriteLine(config.Title);
         }
+
+        /// <summary>
+        /// Override this if specific code needs to execute after the menu is shown, but before user input is received
+        /// </summary>
+        protected virtual void OnAfterShow() { }
 
         private int GetIndexOfNextItem(int currentIndex)
         {
@@ -612,11 +630,19 @@ namespace MenuFramework
 
         #region Change console colors
 
+        /// <summary>
+        /// Temporarily change the foreground color of the Console before a Write. To change the color back, 
+        /// use ResetColor()
+        /// </summary>
+        /// <param name="foregroundColor">The new foreground color for the Console</param>
         protected void SetColor(ConsoleColor foregroundColor)
         {
             Console.ForegroundColor = foregroundColor;
         }
 
+        /// <summary>
+        /// After having called SetColor(color), this method resets the foreground color of the Console to the default value.
+        /// </summary>
         protected void ResetColor()
         {
             Console.ForegroundColor = config.ItemForegroundColor;
