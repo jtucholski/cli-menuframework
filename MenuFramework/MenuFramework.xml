@@ -1,0 +1,276 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MenuFramework</name>
+    </assembly>
+    <members>
+        <member name="T:MenuFramework.ConsoleMenu">
+            <summary>
+            A Console Menu that supports selectable menu options.
+            </summary>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.ClearOptions">
+            <summary>
+            Clears the available menu options, allowing them to be updated.
+            </summary>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.Close">
+            <summary>
+            Helper that can be added directly to a MenuOption to close (dismiss) the menu.
+            </summary>
+            <returns>A MenuOptionResult that tells the owning menu to Close.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.Exit">
+            <summary>
+            Helper that can be added directly to a MenuOption to Exit (dismiss this menu and  ALL parent menus).
+            </summary>
+            <returns>A MenuOptionResult that tells the owning menu to Exit.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.ShowMenu``1">
+            <summary>
+            Helper that can be added directly to a MenuOption to do a simple call to show a sub-menu
+            </summary>
+            <typeparam name="TMenu">The type of menu (a ConsoleMenu) that should be created and displayed.</typeparam>
+            <returns>Passes back the return value from the menu once it closes.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.RebuildMenuOptions">
+            <summary>
+            A derived menu can override this method if it needs to "dynamically" build menu options.
+            For example, if the menu is data-driven based on a List, and that list may be modified 
+            (items added, removed or updated) while the program runs, this method can be used to 
+            re-build the options just before displaying to the user.
+            </summary>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.AddOption(System.String,System.Func{MenuFramework.MenuOptionResult})">
+            <summary>
+            Adds a new option to the menu.
+            </summary>
+            <param name="text">The text to display</param>
+            <param name="action">An action to invoke.</param>
+            <returns>Returns this menu, so that this method can be used in a method chain.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.AddOption(MenuFramework.MenuOption)">
+            <summary>
+            Adds a new option to the menu.
+            </summary>
+            <param name="option">A MenuOption object.</param>
+            <returns>Returns this menu, so that this method can be used in a method chain.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.AddOption``1(System.String,System.Func{``0,MenuFramework.MenuOptionResult},``0)">
+            <summary>
+            Adds an option to the menu. The item is passed back to the callback method.
+            </summary>
+            <param name="text">Text to display.</param>
+            <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
+            <param name="item">The object to pass the method when invoked.</param>
+            <returns>Returns this menu, so that this method can be used in a method chain.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.AddOption``1(``0,System.Func{``0,MenuFramework.MenuOptionResult},System.Func{``0,System.String})">
+            <summary>
+            Adds a data bound option to the menu. The item is passed back to the callback method.
+            </summary>
+            <param name="item">The item created as a menu option.</param>
+            <param name="action">The method to invoke. The method must allow a single argument of type into which the item will be passed.</param>
+            <param name="getMenuText">A method to get the display text for the menu item. It should take a parameter which is the item, and return a string which is the display text.  If this argument is null, item.ToString will be called to get the menu text.</param>
+            <returns>Returns this menu, so that this method can be used in a method chain.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.AddOptionRange``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,MenuFramework.MenuOptionResult},System.Func{``0,System.String})">
+            <summary>
+            Adds multiple options to the menu at once.
+            </summary>
+            <param name="items">A collection of items to create as menu options.</param>
+            <param name="action">The method to invoke. The method must allow a single argument of type into which the item will be passed.</param>
+            <param name="getMenuText">A method to get the display text for the menu item. It should take a parameter which is the item, and return a string which is the display text.  If this argument is null, item.ToString will be called to get the menu text.</param>
+            <returns>Returns this menu, so that this method can be used in a method chain.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.Show">
+            <summary>
+            Displays the menu.
+            </summary>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.Configure(System.Action{MenuFramework.MenuConfig})">
+            <summary>
+            Enables the ability to overwrite any of the default configuration settings.
+            </summary>
+            <param name="action">An Action that accepts a MenuConfig arugment.</param>
+            <returns>Returns this menu, so that this method can be used in a method chain.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.OnBeforeShow">
+            <summary>
+            Override this if specific code needs to execute before the menu is shown.
+            </summary>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.OnAfterShow">
+            <summary>
+            Override this if specific code needs to execute after the menu is shown, but before user input is received
+            </summary>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.GetInteger(System.String,System.Nullable{System.Int32},System.Collections.Generic.IEnumerable{System.Int32})">
+            <summary>
+            This continually prompts the user until they enter a valid integer.
+            </summary>
+            <param name="message">The string to prompt the user with</param>
+            <returns>A valid integer entered by the user</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.GetDouble(System.String,System.Nullable{System.Double},System.Collections.Generic.IEnumerable{System.Double})">
+            <summary>
+            This continually prompts the user until they enter a valid double.
+            </summary>
+            <param name="message">The string to prompt the user with</param>
+            <returns>A valid double entered by the user</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.GetDecimal(System.String,System.Nullable{System.Decimal},System.Collections.Generic.IEnumerable{System.Decimal})">
+            <summary>
+            This continually prompts the user until they enter a valid decimal.
+            </summary>
+            <param name="message">The string to prompt the user with</param>
+            <returns>A valid decimal entered by the user</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.GetDate(System.String,System.Nullable{System.DateTime})">
+            <summary>
+            This continually prompts the user until they enter a valid date
+            </summary>
+            <param name="message">The string to prompt the user with</param>
+            <returns>Date entered by the user</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.GetBool(System.String,System.Nullable{System.Boolean})">
+            <summary>
+            This continually prompts the user until they enter a valid bool.
+            </summary>
+            <param name="message">The string to prompt the user with</param>
+            <returns>True or false.  The user can type Y or true for true values, N or false for false values.</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.GetString(System.String,System.Boolean,System.String)">
+            <summary>
+            This continually prompts the user until they enter a valid string (1 or more characters).
+            </summary>
+            <param name="message">The string to prompt the user with</param>
+            <returns>String entered by the user</returns>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.SetColor(System.ConsoleColor)">
+            <summary>
+            Temporarily change the foreground color of the Console before a Write. To change the color back, 
+            use ResetColor()
+            </summary>
+            <param name="foregroundColor">The new foreground color for the Console</param>
+        </member>
+        <member name="M:MenuFramework.ConsoleMenu.ResetColor">
+            <summary>
+            After having called SetColor(color), this method resets the foreground color of the Console to the default value.
+            </summary>
+        </member>
+        <member name="P:MenuFramework.MenuConfig.SelectedItemBackgroundColor">
+            <summary>default Console.BackgroundColor</summary>        
+        </member>
+        <member name="P:MenuFramework.MenuConfig.SelectedItemForegroundColor">
+            <summary>default Console.ForegroundColor</summary>        
+        </member>
+        <member name="P:MenuFramework.MenuConfig.ItemBackgroundColor">
+            <summary>default Console.BackgroundColor</summary>        
+        </member>
+        <member name="P:MenuFramework.MenuConfig.ItemForegroundColor">
+            <summary>default Console.ForegroundColor</summary>        
+        </member>
+        <member name="P:MenuFramework.MenuConfig.Selector">
+            <summary>default: ">> "</summary>
+        </member>
+        <member name="P:MenuFramework.MenuConfig.ClearConsole">
+            <summary>default: true</summary>        
+        </member>
+        <member name="P:MenuFramework.MenuConfig.BeepOnError">
+            <summary>
+            default: false
+            </summary>
+        </member>
+        <member name="P:MenuFramework.MenuConfig.WaitAfterMenuSelection">
+            <summary>default: true</summary>        
+        </member>
+        <member name="P:MenuFramework.MenuConfig.Title">
+            <summary>default: ""</summary>                
+        </member>
+        <member name="P:MenuFramework.MenuConfig.CloseOnEscape">
+            <summary>
+            default: true
+            </summary>
+        </member>
+        <member name="T:MenuFramework.MenuOption">
+            <summary>
+            Represents a single option in a menu.
+            </summary>
+        </member>
+        <member name="P:MenuFramework.MenuOption.Text">
+            <summary>
+            The text to display for this menu option.
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:MenuFramework.MenuOption.Command">
+            <summary>
+            The command to invoke when the menu option is selected.
+            </summary>
+            <value></value>
+        </member>
+        <member name="M:MenuFramework.MenuOption.#ctor(System.String,System.Func{MenuFramework.MenuOptionResult})">
+            <summary>
+            Creates a new menu option.
+            </summary>
+            <param name="text"></param>
+            <param name="command"></param>
+        </member>
+        <member name="T:MenuFramework.MenuOption`1">
+            <summary>
+            Represents a Menu Option with an object attached to it for "reactive text".
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:MenuFramework.MenuOption`1.#ctor(System.Func{MenuFramework.MenuOptionResult},`0,System.Func{`0,System.String})">
+            <summary>
+            Constructor for a selection on a menu
+            </summary>
+            <param name="command">The method to run when this item is selected</param>
+            <param name="item">An item to pass into the "command" method</param>
+            <param name="getMenuText">A method to call to get the display text for this option. If null, item.ToString is called.</param>
+        </member>
+        <member name="P:MenuFramework.MenuOption`1.Text">
+            <summary>
+            The text to display for this menu option.
+            </summary>
+            <value></value>
+        </member>
+        <member name="T:MenuFramework.MenuOptionResult">
+            <summary>
+            All menu command methods return <see langword="abstract"/>MenuOptionResult informing the framework what to do next.
+            </summary>
+        </member>
+        <member name="F:MenuFramework.MenuOptionResult.WaitAfterMenuSelection">
+            <summary>
+            The progam will pause after execution of the menu command, and the user will need to press any key to continue.
+            </summary>
+        </member>
+        <member name="F:MenuFramework.MenuOptionResult.DoNotWaitAfterMenuSelection">
+            <summary>
+            The progam will NOT pause after execution of the menu command. The menu will be re-drawn immediately after the command is executed
+            </summary>
+        </member>
+        <member name="F:MenuFramework.MenuOptionResult.WaitThenCloseAfterSelection">
+            <summary>
+            The menu containing the selected option will pause after execution of the command and then close.
+            </summary>
+        </member>
+        <member name="F:MenuFramework.MenuOptionResult.CloseMenuAfterSelection">
+            <summary>
+            The menu containing the selected option will close after execution of the command.
+            </summary>
+        </member>
+        <member name="F:MenuFramework.MenuOptionResult.ExitAfterSelection">
+            <summary>
+            The menu, and all parent menus, will close after execution of the command. (This is not yet implemented so it works like Close)
+            </summary>
+        </member>
+    </members>
+</doc>

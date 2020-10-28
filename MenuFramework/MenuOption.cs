@@ -24,7 +24,6 @@ namespace MenuFramework
         /// </summary>
         /// <param name="text"></param>
         /// <param name="command"></param>
-        /// <param name="closeOnSelection"></param>        
         public MenuOption(string text, Func<MenuOptionResult> command)
         {
             Text = text;
@@ -35,14 +34,22 @@ namespace MenuFramework
     /// <summary>
     /// Represents a Menu Option with an object attached to it for "reactive text".
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The Type of the attached item</typeparam>
     public class MenuOption<T> : MenuOption
     {
         private T item;
-        public MenuOption(Func<MenuOptionResult> command, T item) 
-            : base (item.ToString(), command) 
-        { 
+        private Func<T, string> getMenuText;
+        /// <summary>
+        /// Constructor for a selection on a menu
+        /// </summary>
+        /// <param name="command">The method to run when this item is selected</param>
+        /// <param name="item">An item to pass into the "command" method</param>
+        /// <param name="getMenuText">A method to call to get the display text for this option. If null, item.ToString is called.</param>
+        public MenuOption(Func<MenuOptionResult> command, T item, Func<T, string> getMenuText = null)
+            : base("", command)
+        {
             this.item = item;
+            this.getMenuText = getMenuText;
         }
 
         /// <summary>
@@ -51,7 +58,11 @@ namespace MenuFramework
         /// <value></value>
         public override string Text
         {
-            get { return item.ToString(); }
+            get 
+            {
+                if (getMenuText == null) return item.ToString();
+                return getMenuText(item);
+            }
         }
     }
 
@@ -67,11 +78,11 @@ namespace MenuFramework
         /// <summary>
         /// The progam will NOT pause after execution of the menu command. The menu will be re-drawn immediately after the command is executed
         /// </summary>
-        DoNotWaitAfterMenuSelection,        
+        DoNotWaitAfterMenuSelection,
         /// <summary>
         /// The menu containing the selected option will pause after execution of the command and then close.
         /// </summary>
-        WaitThenCloseAfterSelection, 
+        WaitThenCloseAfterSelection,
         /// <summary>
         /// The menu containing the selected option will close after execution of the command.
         /// </summary>

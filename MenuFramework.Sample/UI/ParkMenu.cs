@@ -32,25 +32,42 @@ namespace MenuFramework.Sample.UI
             Console.WriteLine();
         }
 
+        protected override void OnAfterShow()
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"--- Today's weather at {park.Name} is 69F and sunny ---");
+        }
+
         private MenuOptionResult Deletepark()
         {
-            bool delete = ConsoleMenu.GetBool($"Are you sure you want to delete {park.Name}?");
+            bool delete = ConsoleMenu.GetBool($"Are you sure you want to delete {park.Name}?", false);
 
             if (delete)
             {
                 parkDao.Delete(park.ParkId);
                 Console.WriteLine("Park was deleted.");
+                return MenuOptionResult.CloseMenuAfterSelection;
             }
-
-            return MenuOptionResult.CloseMenuAfterSelection;
+            else
+            {
+                return MenuOptionResult.DoNotWaitAfterMenuSelection;
+            }
         }
 
         private MenuOptionResult UpdatePark()
         {
             Park updatedPark = new Park(park.ParkId, park.Name, park.State);
          
-            updatedPark.Name = ConsoleMenu.GetString("Name:");
+            updatedPark.Name = ConsoleMenu.GetString("Name:", true);
+            if (updatedPark.Name.Trim().Length == 0)
+            {
+                return MenuOptionResult.DoNotWaitAfterMenuSelection;
+            }
             updatedPark.State = ConsoleMenu.GetString("State:");
+            if (updatedPark.State.Trim().Length == 0)
+            {
+                return MenuOptionResult.DoNotWaitAfterMenuSelection;
+            }
 
             parkDao.Update(updatedPark);
             Console.WriteLine("Park was updated.");
