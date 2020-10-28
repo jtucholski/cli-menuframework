@@ -62,9 +62,9 @@ Any method that is called when a menu option is selected, must return a `MenuOpt
 
 ### Deriving from Console Menu
 
-You can configure what is shown (and better organize your code) by deriving from the `ConsoleMenu` class. An `OnBeforeShow()` method is overridable to allow more customization or the ability to display dynamic data before menu options are rendered.
+You can configure what is shown (and better organize your code) by deriving from the `ConsoleMenu` class. An `OnBeforeShow()` and `OnAfterShow()` method is available for overriding, allowing you further customization of what displays before or after the menu options are rendered.
 
-In this example we create a `MainMenu` with the same options, except now it will display fancy  ASCII-art before rendering those options.
+In this example we create a `MainMenu` with the same options, except now it will display fancy ASCII-art before rendering those options.
 
 
 ```csharp
