@@ -368,7 +368,9 @@ namespace MenuFramework
         /// <summary>
         /// This continually prompts the user until they enter a valid integer.
         /// </summary>
-        /// <param name="message">The string to prompt the user with</param>
+        /// <param name="message">The string to prompt the user with.</param>
+        /// <param name="defaultValue">An optional default value for the user to confirm.</param>
+        /// <param name="allowableValues">An optional range of allowable values to validate against.</param>
         /// <returns>A valid integer entered by the user</returns>
         static public int GetInteger(string message, int? defaultValue = null, IEnumerable<int> allowableValues = null)
         {
@@ -413,7 +415,9 @@ namespace MenuFramework
         /// <summary>
         /// This continually prompts the user until they enter a valid double.
         /// </summary>
-        /// <param name="message">The string to prompt the user with</param>
+        /// <param name="message">The string to prompt the user with.</param>
+        /// <param name="defaultValue">An optional default value for the user to confirm.</param>
+        /// <param name="allowableValues">An optional range of allowable values to validate against.</param>
         /// <returns>A valid double entered by the user</returns>
         static public double GetDouble(string message, double? defaultValue = null, IEnumerable<double> allowableValues = null)
         {
@@ -458,7 +462,9 @@ namespace MenuFramework
         /// <summary>
         /// This continually prompts the user until they enter a valid decimal.
         /// </summary>
-        /// <param name="message">The string to prompt the user with</param>
+        /// <param name="message">The string to prompt the user with.</param>
+        /// <param name="defaultValue">An optional default value for the user to confirm.</param>
+        /// <param name="allowableValues">An optional range of allowable values to validate against.</param>
         /// <returns>A valid decimal entered by the user</returns>
         static public decimal GetDecimal(string message, decimal? defaultValue = null, IEnumerable<decimal> allowableValues = null)
         {
@@ -503,7 +509,8 @@ namespace MenuFramework
         /// <summary>
         /// This continually prompts the user until they enter a valid date
         /// </summary>
-        /// <param name="message">The string to prompt the user with</param>
+        /// <param name="message">The string to prompt the user with.</param>
+        /// <param name="defaultValue">An optional default value for the user to confirm.</param>
         /// <returns>Date entered by the user</returns>
         static public DateTime GetDate(string message, DateTime? defaultValue = null)
         {
@@ -541,7 +548,8 @@ namespace MenuFramework
         /// <summary>
         /// This continually prompts the user until they enter a valid bool.
         /// </summary>
-        /// <param name="message">The string to prompt the user with</param>
+        /// <param name="message">The string to prompt the user with.</param>
+        /// <param name="defaultValue">An optional default value for the user to confirm.</param>
         /// <returns>True or false.  The user can type Y or true for true values, N or false for false values.</returns>
         static public bool GetBool(string message, bool? defaultValue = null)
         {
@@ -590,7 +598,9 @@ namespace MenuFramework
         /// <summary>
         /// This continually prompts the user until they enter a valid string (1 or more characters).
         /// </summary>
-        /// <param name="message">The string to prompt the user with</param>
+        /// <param name="message">The string to prompt the user with.</param>
+        /// <param name="allowEmptyString">If the user is allowed to provide no value (default false).</param>
+        /// <param name="defaultValue">An optional default value for the user to confirm.</param>
         /// <returns>String entered by the user</returns>
         static public string GetString(string message, bool allowEmptyString = false, string defaultValue = null)
         {
