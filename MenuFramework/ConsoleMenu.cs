@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -66,15 +67,17 @@ namespace MenuFramework
         /// </summary>
         virtual protected void RebuildMenuOptions() { }
 
+        #region AddOption method overloads
         /// <summary>
         /// Adds a new option to the menu.
         /// </summary>
         /// <param name="text">The text to display</param>
         /// <param name="action">An action to invoke.</param>
+        /// <param name="keyString">When in MenuSelectionMode.KeyString, the text of the string the user must type to select this option.</param>
         /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
-        public ConsoleMenu AddOption(string text, Func<MenuOptionResult> action)
+        public ConsoleMenu AddOption(string text, Func<MenuOptionResult> action, string keyString = null)
         {
-            MenuOption option = new MenuOption(text, action);
+            MenuOption option = new MenuOption(text, action, keyString);
             menuOptions.Add(option);
             return this;
         }
@@ -96,10 +99,11 @@ namespace MenuFramework
         /// <param name="text">Text to display.</param>
         /// <param name="action">The method to invoke. The method must allow a single argument of type T.</param>
         /// <param name="item">The object to pass the method when invoked.</param>
+        /// <param name="keyString">When in MenuSelectionMode.KeyString, the text of the string the user must type to select this option.</param>
         /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
-        public ConsoleMenu AddOption<T>(string text, Func<T, MenuOptionResult> action, T item)
+        public ConsoleMenu AddOption<T>(string text, Func<T, MenuOptionResult> action, T item, string keyString = null)
         {
-            AddOption(text, () => action(item));
+            AddOption(text, () => action(item), keyString);
             return this;
         }
 
@@ -109,10 +113,11 @@ namespace MenuFramework
         /// <param name="item">The item created as a menu option.</param>
         /// <param name="action">The method to invoke. The method must allow a single argument of type into which the item will be passed.</param>
         /// <param name="getMenuText">A method to get the display text for the menu item. It should take a parameter which is the item, and return a string which is the display text.  If this argument is null, item.ToString will be called to get the menu text.</param>
+        /// <param name="keyString">When in MenuSelectionMode.KeyString, the text of the string the user must type to select this option.</param>
         /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
-        public ConsoleMenu AddOption<T>(T item, Func<T, MenuOptionResult> action, Func<T, string> getMenuText = null)
+        public ConsoleMenu AddOption<T>(T item, Func<T, MenuOptionResult> action, Func<T, string> getMenuText = null, string keyString = null)
         {
-            AddOption(new MenuOption<T>(() => action(item), item, getMenuText));
+            AddOption(new MenuOption<T>(() => action(item), item, getMenuText, keyString));
             return this;
         }
 
@@ -133,14 +138,14 @@ namespace MenuFramework
             return this;
         }
 
+        #endregion
+
         /// <summary>
         /// Displays the menu.
         /// </summary>
         public MenuOptionResult Show()
         {
-            ConsoleKey key;
-            int currentSelectionIndex = 0;
-
+            MenuOption selectedOption = null;
             // Infinitely loop the menu
             while (true)
             {
@@ -148,110 +153,18 @@ namespace MenuFramework
                 // in nature should override and re-build menuOptions with the latest data.
                 RebuildMenuOptions();
 
-                // At least once display the menu options,
-                // when the user presses Enter, invoke the option associated
-                // otherwise keep redrawing the screen as the "selection" changes
-
-                // Before the first draw - initialize some variables
-                int previousSelectionIndex = -1;
-                int menuTop = 0;
-                int menuBottom = 0;
-                // While we are inside the "drawing" loop, hide the cursor
-                Console.CursorVisible = false;
-                do
+                switch (config.MenuSelectionMode)
                 {
-                    // The first time in this loop is a full *re-draw* of the menu. After the first time, when the user presses the arrow keys,
-                    // 
-                    if (previousSelectionIndex < 0)
-                    {
-                        // Set previous index so we don't redraw again
-                        previousSelectionIndex = 0;
-                        Console.Clear();
-                        OnBeforeShow();
-                        Console.BackgroundColor = config.ItemBackgroundColor;
-                        Console.ForegroundColor = config.ItemForegroundColor;
+                    case MenuSelectionMode.Arrow:
+                        selectedOption = DrawMenuAndGetSelection_ArrowMode(selectedOption);
+                        break;
 
-                        // Get the position where we start drawing the menu
-                        menuTop = Console.CursorTop;
+                    case MenuSelectionMode.KeyString:
+                        selectedOption = DrawMenuAndGetSelection_KeyStringMode(selectedOption);
+                        break;
+                }
 
-                        // Print the options
-                        for (int i = 0; i < menuOptions.Count; i++)
-                        {
-                            bool isSelectedOption = (currentSelectionIndex == i);
-                            MenuOption option = menuOptions[i];
-                            PrintMenuOption(option, isSelectedOption);
-                            Console.WriteLine();
-                        }
-
-                        // This is a hook where the derived class can print something under the menu text
-                        OnAfterShow();
-                        Console.BackgroundColor = config.ItemBackgroundColor;
-                        Console.ForegroundColor = config.ItemForegroundColor;
-
-                        // Get the position where the menu is finished drawing
-                        menuBottom = Console.CursorTop;
-                    }
-                    else
-                    {
-                        // Draw a single item over the previously selected item, and the currently selected item
-                        Console.CursorTop = menuTop + previousSelectionIndex;
-                        Console.CursorLeft = 0;
-                        PrintMenuOption(menuOptions[previousSelectionIndex], false);
-
-                        Console.CursorTop = menuTop + currentSelectionIndex;
-                        Console.CursorLeft = 0;
-                        PrintMenuOption(menuOptions[currentSelectionIndex], true);
-
-                        Console.CursorTop = menuBottom;
-                        Console.CursorLeft = 0;
-                    }
-
-                    // Let the user press a key but don't show it
-                    key = Console.ReadKey(intercept: true).Key;
-
-                    if (key == ConsoleKey.Escape && config.CloseOnEscape)
-                    {
-                        // This is a HACK! It seems the ESC character somehow "swallows" the next character printed to the screen.  
-                        // So I am printing a garbage character, never to be seen. Weird.
-                        // Ok, now this seems to have gone away when I changed the ReadKeys to 'true'
-                        //Console.WriteLine("X");
-
-                        // Since we are exiting the method, we probably should re-show the cursor.
-                        Console.CursorVisible = true;
-
-                        return MenuOptionResult.DoNotWaitAfterMenuSelection;
-                    }
-
-                    if (key == ConsoleKey.DownArrow)
-                    {
-                        // Select the next option
-                        previousSelectionIndex = currentSelectionIndex;
-                        currentSelectionIndex = GetIndexOfNextItem(currentSelectionIndex);
-                    }
-                    else if (key == ConsoleKey.UpArrow)
-                    {
-                        // Select previous option
-                        previousSelectionIndex = currentSelectionIndex;
-                        currentSelectionIndex = GetIndexOfPrevItem(currentSelectionIndex);
-                    }
-                    else if (key != ConsoleKey.Enter)
-                    {
-                        // User pressed a key the menu is not expecting
-                        if (config.BeepOnError)
-                        {
-                            // Let the user know they pressed a bad key
-                            Console.Beep();
-                        }
-                    }
-
-
-                } while (key != ConsoleKey.Enter);
-
-                // Since we are going to execute a command, we should re-show the cursor.
-                Console.CursorVisible = true;
-
-                // User pressed enter, so invoke the command
-                MenuOption selectedOption = menuOptions[currentSelectionIndex];
+                // We now have a selectedOption
 
                 if (config.ClearConsole)
                 {
@@ -274,7 +187,7 @@ namespace MenuFramework
                 {
                     return MenuOptionResult.DoNotWaitAfterMenuSelection;
                 }
-                
+
                 // If the action says to wait before closing
                 if (result == MenuOptionResult.WaitThenCloseAfterSelection)
                 {
@@ -289,6 +202,188 @@ namespace MenuFramework
                     Console.ReadKey(intercept: true);
                 }
             }
+        }
+
+        private MenuOption DrawMenuAndGetSelection_KeyStringMode(MenuOption selectedOption)
+        {
+            // Draw all the menu items
+            Console.BackgroundColor = config.ItemBackgroundColor;
+            Console.ForegroundColor = config.ItemForegroundColor;
+            Console.Clear();
+            OnBeforeShow();
+
+            // Print the options
+            int maxKeyStringLength = 0;
+            int nextSerialNumber = 1;
+            
+            // Loop once to build a dictionary and do some calculations
+            Dictionary<string, MenuOption> optionDictionary = new Dictionary<string, MenuOption>(StringComparer.OrdinalIgnoreCase);
+            foreach (MenuOption option in menuOptions)
+            {
+                // Figure out the KeyString for the item
+                string keyString = option.KeyString ?? nextSerialNumber++.ToString();
+
+                // Calculate the current Max length of all key strings
+                maxKeyStringLength = Math.Max(maxKeyStringLength, keyString.Length);
+
+                // Add the item to the dictionary (throw if duplicate)
+                if (optionDictionary.ContainsKey(keyString))
+                {
+                    throw new Exception($"A duplicate menu key-string value was detected: {keyString} ");
+                }
+                optionDictionary.Add(keyString, option);
+            }
+
+            // Now loop the dictionary to print the menu 
+            foreach(var kvp in optionDictionary)
+            {
+                string menuLine = $"{kvp.Key.PadLeft(maxKeyStringLength)}{config.KeyStringTextSeparator}{kvp.Value.Text}";
+                if (selectedOption == kvp.Value)
+                {
+                    // Print the selected item in the configured color
+                    Console.BackgroundColor = config.SelectedItemBackgroundColor;
+                    Console.ForegroundColor = config.SelectedItemForegroundColor;
+                    Console.WriteLine(menuLine);
+                    Console.BackgroundColor = config.ItemBackgroundColor;
+                    Console.ForegroundColor = config.ItemForegroundColor;
+
+                }
+                else
+                {
+                    Console.WriteLine(menuLine);
+                }
+            }
+
+            // This is a hook where the derived class can print something under the menu text
+            OnAfterShow();
+
+            // Display the prompt (in the Selected Item color)
+            Console.BackgroundColor = config.SelectedItemBackgroundColor;
+            Console.ForegroundColor = config.SelectedItemForegroundColor;
+
+            // Wait for the user to enter a command (make sure it's in the dictionary)
+            string key = GetString(config.KeyStringPrompt, false, null, optionDictionary.Keys);
+
+            Console.BackgroundColor = config.ItemBackgroundColor;
+            Console.ForegroundColor = config.ItemForegroundColor;
+
+            // Get the option the user selected
+            return optionDictionary[key];
+        }
+
+        private MenuOption DrawMenuAndGetSelection_ArrowMode(MenuOption selectedOption)
+        {
+            int currentSelectionIndex = 0;
+            if (selectedOption != null)
+            {
+                currentSelectionIndex = menuOptions.IndexOf(selectedOption);
+                if (currentSelectionIndex < 0)
+                {
+                    currentSelectionIndex = 0;
+                }
+            }
+
+            ConsoleKey key;
+
+            // At least once display the menu options,
+            // when the user presses Enter, invoke the option associated
+            // otherwise keep redrawing the screen as the "selection" changes
+
+            // Before the first draw - initialize some variables
+            int previousSelectionIndex = -1;
+            int menuTop = 0;
+            int menuBottom = 0;
+            // While we are inside the "drawing" loop, hide the cursor
+            Console.CursorVisible = false;
+            do
+            {
+                // The first time in this loop is a full *re-draw* of the menu. After the first time, when the user presses the arrow keys,
+                // 
+                if (previousSelectionIndex < 0)
+                {
+                    // Set previous index so we don't redraw again
+                    previousSelectionIndex = 0;
+                    Console.Clear();
+                    OnBeforeShow();
+                    Console.BackgroundColor = config.ItemBackgroundColor;
+                    Console.ForegroundColor = config.ItemForegroundColor;
+
+                    // Get the position where we start drawing the menu
+                    menuTop = Console.CursorTop;
+
+                    // Print the options
+                    for (int i = 0; i < menuOptions.Count; i++)
+                    {
+                        bool isSelectedOption = (currentSelectionIndex == i);
+                        MenuOption option = menuOptions[i];
+                        PrintMenuOption(option, isSelectedOption);
+                        Console.WriteLine();
+                    }
+
+                    // This is a hook where the derived class can print something under the menu text
+                    OnAfterShow();
+                    Console.BackgroundColor = config.ItemBackgroundColor;
+                    Console.ForegroundColor = config.ItemForegroundColor;
+
+                    // Get the position where the menu is finished drawing
+                    menuBottom = Console.CursorTop;
+                }
+                else
+                {
+                    // Draw a single item over the previously selected item, and the currently selected item
+                    Console.CursorTop = menuTop + previousSelectionIndex;
+                    Console.CursorLeft = 0;
+                    PrintMenuOption(menuOptions[previousSelectionIndex], false);
+
+                    Console.CursorTop = menuTop + currentSelectionIndex;
+                    Console.CursorLeft = 0;
+                    PrintMenuOption(menuOptions[currentSelectionIndex], true);
+
+                    Console.CursorTop = menuBottom;
+                    Console.CursorLeft = 0;
+                }
+
+                // Let the user press a key but don't show it
+                key = Console.ReadKey(intercept: true).Key;
+
+                if (key == ConsoleKey.Escape && config.CloseOnEscape)
+                {
+                    // Since we are exiting the method, we probably should re-show the cursor.
+                    Console.CursorVisible = true;
+                    return new MenuOption("", Close);
+                }
+
+                if (key == ConsoleKey.DownArrow)
+                {
+                    // Select the next option
+                    previousSelectionIndex = currentSelectionIndex;
+                    currentSelectionIndex = GetIndexOfNextItem(currentSelectionIndex);
+                }
+                else if (key == ConsoleKey.UpArrow)
+                {
+                    // Select previous option
+                    previousSelectionIndex = currentSelectionIndex;
+                    currentSelectionIndex = GetIndexOfPrevItem(currentSelectionIndex);
+                }
+                else if (key != ConsoleKey.Enter)
+                {
+                    // User pressed a key the menu is not expecting
+                    if (config.BeepOnError)
+                    {
+                        // Let the user know they pressed a bad key
+                        Console.Beep();
+                    }
+                }
+
+
+            } while (key != ConsoleKey.Enter);
+
+            // Since we are going to execute a command, we should re-show the cursor.
+            Console.CursorVisible = true;
+
+            // User pressed enter, so invoke the command
+            return menuOptions[currentSelectionIndex];
+
         }
 
         /// <summary>
@@ -601,8 +696,10 @@ namespace MenuFramework
         /// <param name="message">The string to prompt the user with.</param>
         /// <param name="allowEmptyString">If the user is allowed to provide no value (default false).</param>
         /// <param name="defaultValue">An optional default value for the user to confirm.</param>
+        /// <param name="allowableValues">Collection of values to constrain for. If null, all values are allowed.</param>
         /// <returns>String entered by the user</returns>
-        static public string GetString(string message, bool allowEmptyString = false, string defaultValue = null)
+        static public string GetString(string message, bool allowEmptyString = false, 
+            string defaultValue = null, IEnumerable<string> allowableValues = null)
         {
             while (true)
             {
@@ -616,24 +713,31 @@ namespace MenuFramework
 
                 string userInput = Console.ReadLine().Trim();
 
+                if (userInput.Length == 0)
+                {
+                    if (allowEmptyString)
+                    {
+                        return userInput;
+                    }
+                    else if (!String.IsNullOrEmpty(defaultValue))
+                    {
+                        userInput = defaultValue;
+                    }
+                    else
+                    {
+                        Console.WriteLine("!!! Empty string is not allowed.");
+                        continue;
+                    }
+                }
+
+                if (allowableValues != null && !allowableValues.Any( v => v.ToLower() == userInput.ToLower()))
+                {
+                    Console.WriteLine($"!!! '{userInput}' is not in the list of valid values.");
+                    continue;
+                }
+
                 // If the user pressed ENTER only, take the default
-                if (userInput.Length > 0)
-                {
-                    return userInput;
-                }
-
-                // Empty input, what to do...
-                if (!String.IsNullOrEmpty(defaultValue))
-                {
-                    return defaultValue;
-                }
-
-                if (allowEmptyString)
-                {
-                    return userInput;
-                }
-
-                Console.WriteLine("!!! Invalid input. Please enter a valid string.");
+                return userInput;
             }
         }
         #endregion

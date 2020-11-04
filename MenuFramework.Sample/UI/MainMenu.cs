@@ -35,6 +35,7 @@ namespace MenuFramework.Sample.UI
                 .AddOption("Computer jokes", DisplayComputerJokes)
                 .AddOption("Close joke menu", ConsoleMenu.Close)
                 .AddOption("Exit program", ConsoleMenu.Exit);
+            jokeMenu.Configure(cfg => { cfg.SelectedItemForegroundColor = ConsoleColor.Red;});
 
             return jokeMenu.Show();
         }
@@ -44,7 +45,7 @@ namespace MenuFramework.Sample.UI
             Console.WriteLine("I tried to change my password to \"14days\"...");
             Console.ReadKey();
             SetColor(ConsoleColor.Green);
-            Console.WriteLine("It was rejected as \"too weak\"!");
+            Console.WriteLine("It was rejected as \"two week\"!");
             Console.ReadKey();
             ResetColor();
             Console.Clear();
