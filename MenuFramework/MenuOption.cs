@@ -9,8 +9,8 @@ namespace MenuFramework
     {
         /// <summary>
         /// When in MenuSelectionMode.KeyString, the text of the string the user must type to select this option. Must be unique in the menu.
-        /// </summary>
-        public string KeyString { get; }
+        /// </summary>3
+        public virtual string KeyString { get; }
 
         /// <summary>
         /// The text to display for this menu option.
@@ -46,18 +46,20 @@ namespace MenuFramework
     {
         private T item;
         private Func<T, string> getMenuText;
+        private Func<T, string> getKeyString;
         /// <summary>
         /// Constructor for a selection on a menu
         /// </summary>
         /// <param name="command">The method to run when this item is selected</param>
         /// <param name="item">An item to pass into the "command" method</param>
         /// <param name="getMenuText">A method to call to get the display text for this option. If null, item.ToString is called.</param>
-        /// <param name="keyString">The text the user needs to type to select this option, when in KeyString mode</param>
-        public MenuOption(Func<MenuOptionResult> command, T item, Func<T, string> getMenuText = null, string keyString = null)
-            : base("", command, keyString)
+        /// <param name="getKeyString">A method to call to get the key string to display if the menu is in KeyString mode. If null, the menu will auto-number.</param>
+        public MenuOption(Func<MenuOptionResult> command, T item, Func<T, string> getMenuText = null, Func<T, string> getKeyString = null)
+            : base("", command)
         {
             this.item = item;
             this.getMenuText = getMenuText;
+            this.getKeyString = getKeyString;
         }
 
         /// <summary>
@@ -70,6 +72,18 @@ namespace MenuFramework
             {
                 if (getMenuText == null) return item.ToString();
                 return getMenuText(item);
+            }
+        }
+
+        /// <summary>
+        /// The text to display as the item Key String if the menu is in KeyString mode
+        /// </summary>
+        public override string KeyString
+        {
+            get
+            {
+                if (getKeyString == null) return null;  // menu will auto-number
+                return getKeyString(item);
             }
         }
     }

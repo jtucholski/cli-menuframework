@@ -113,11 +113,11 @@ namespace MenuFramework
         /// <param name="item">The item created as a menu option.</param>
         /// <param name="action">The method to invoke. The method must allow a single argument of type into which the item will be passed.</param>
         /// <param name="getMenuText">A method to get the display text for the menu item. It should take a parameter which is the item, and return a string which is the display text.  If this argument is null, item.ToString will be called to get the menu text.</param>
-        /// <param name="keyString">When in MenuSelectionMode.KeyString, the text of the string the user must type to select this option.</param>
+        /// <param name="getKeyString">When in MenuSelectionMode.KeyString, a method to call to get the text of the string the user must type to select this option.</param>
         /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
-        public ConsoleMenu AddOption<T>(T item, Func<T, MenuOptionResult> action, Func<T, string> getMenuText = null, string keyString = null)
+        public ConsoleMenu AddOption<T>(T item, Func<T, MenuOptionResult> action, Func<T, string> getMenuText = null, Func<T, string> getKeyString = null)
         {
-            AddOption(new MenuOption<T>(() => action(item), item, getMenuText, keyString));
+            AddOption(new MenuOption<T>(() => action(item), item, getMenuText, getKeyString));
             return this;
         }
 
@@ -127,12 +127,13 @@ namespace MenuFramework
         /// <param name="items">A collection of items to create as menu options.</param>
         /// <param name="action">The method to invoke. The method must allow a single argument of type into which the item will be passed.</param>
         /// <param name="getMenuText">A method to get the display text for the menu item. It should take a parameter which is the item, and return a string which is the display text.  If this argument is null, item.ToString will be called to get the menu text.</param>
+        /// <param name="getKeyString">When in MenuSelectionMode.KeyString, a method to call to get the text of the string the user must type to select this option.</param>
         /// <returns>Returns this menu, so that this method can be used in a method chain.</returns>
-        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Func<T, MenuOptionResult> action, Func<T, string> getMenuText = null)
+        public ConsoleMenu AddOptionRange<T>(IEnumerable<T> items, Func<T, MenuOptionResult> action, Func<T, string> getMenuText = null, Func<T, string> getKeyString = null)
         {
             foreach (T item in items)
             {
-                AddOption(new MenuOption<T>(() => action(item), item, getMenuText));
+                AddOption(new MenuOption<T>(() => action(item), item, getMenuText, getKeyString));
             }
 
             return this;
@@ -408,7 +409,10 @@ namespace MenuFramework
         /// <summary>
         /// Override this if specific code needs to execute after the menu is shown, but before user input is received
         /// </summary>
-        protected virtual void OnAfterShow() { }
+        protected virtual void OnAfterShow() 
+        {
+            Console.WriteLine();
+        }
 
         private int GetIndexOfNextItem(int currentIndex)
         {
