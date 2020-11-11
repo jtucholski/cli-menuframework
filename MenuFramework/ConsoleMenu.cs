@@ -247,7 +247,6 @@ namespace MenuFramework
                     Console.WriteLine(menuLine);
                     Console.BackgroundColor = config.ItemBackgroundColor;
                     Console.ForegroundColor = config.ItemForegroundColor;
-
                 }
                 else
                 {

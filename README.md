@@ -121,11 +121,39 @@ public class MainMenu : ConsoleMenu
 }
 ```
 
+#### KeyString Mode
+
+One configuration choice you may make, is the decision to use `KeyString` mode for menu selection. Instead of up and down arrow navigation, `KeyString` mode allows the user to enter key strings to select a menu option.
+
+When using KeyString mode, you can supply the value that will be used to select the option as the `keyString` parameter. If you do not supply a value, the options will be auto-numbered.
+
+```csharp
+public class MainMenu : ConsoleMenu
+{
+    public MainMenu()
+    {
+        // Add Options to the Main Menu
+        this.AddOption("Hello World", HelloWorld, "HW")
+            .AddOption("Date and Time", DisplayDateAndTime, "DT")
+            .AddOption("Display Weather", DisplayWeather, "DW")
+            .AddOption("Close", Close, "Q") // ConsoleMenu.Close
+            .Configure(config => {
+                config.MenuSelectionMode = MenuSelectionMode.KeyString;
+                config.ItemBackgroundColor = ConsoleColor.White;
+                config.ItemForegroundColor = ConsoleColor.Black;
+                config.SelectedItemBackgroundColor = ConsoleColor.White;
+                config.SelectedItemForegroundColor = ConsoleColor.Black;                
+                config.BeepOnError = true;
+            });
+    }
+}
+```
+
 ### Dynamic Menus
 
 If your application requires menu options that are dynamically generated from a data source, you can use the `AddOptionRange<T>(IEnumerable<T>, Func<T, MenuOptionResult>)` method provided by `ConsoleMenu`. An example of this syntax follows below in which a `List<Park>` objects is used to build menu options.
 
-> **Note** `ToString()` will be automatically invoked on each object in the list determine how to display it in the menu.
+> **Note** `ToString()` will be automatically invoked on each object in the list to determine how to display it in the menu.
 
 ```csharp
 public class ParksMenu : ConsoleMenu
