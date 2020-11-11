@@ -20,7 +20,7 @@ namespace MenuFramework.Sample.UI
                 .Configure(config =>
                 {
                     config.MenuSelectionMode = MenuSelectionMode.KeyString;
-                    config.KeyStringTextSeparator = "|";
+                    config.KeyStringTextSeparator = ")";
                     config.SelectedItemBackgroundColor = ConsoleColor.White;
                     config.SelectedItemForegroundColor = ConsoleColor.DarkGreen;
                 });

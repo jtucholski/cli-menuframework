@@ -14,6 +14,7 @@ namespace MenuFramework.Sample.UI
                  {
                      config.MenuSelectionMode = MenuSelectionMode.KeyString;
                      config.Title = "*** Today ***";
+                     config.SelectedItemForegroundColor = ConsoleColor.Red;
                  });
 
         }
