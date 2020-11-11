@@ -13,9 +13,9 @@ The following features are explained:
 * [Using Console Menu Helpers](#using-console-menu-helpers)
 
 
-## Usage
+# Usage
 
-### Creating a Console Menu
+## Creating a Console Menu
 
 A basic console menu (with options) can be created by instantiating a new `ConsoleMenu`. `AddOption(string, Func<MenuOptionResult>)` is used to add menu options to select from and `Show()` is called when you are ready to display the menu.
 
@@ -50,7 +50,7 @@ private static MenuOptionResult Exit()
 }
 ```
 
-### Menu Option Results
+## Menu Option Results
 
 Any method that is called when a menu option is selected, must return a `MenuOptionResult`. The `MenuOptionResult` indicates what will happen next after the code for the option has been executed. `MenuOptionResult` is an `enum` and the choices include:
 
@@ -60,7 +60,7 @@ Any method that is called when a menu option is selected, must return a `MenuOpt
 * `CloseMenuAfterSelection` - The menu containing the selected option will close after the command is executed.
 * `ExitAfterSelection` - The menu, and all parent menus, will close after the command is executed.
 
-### Deriving from Console Menu
+## Deriving from Console Menu
 
 You can configure what is shown (and better organize your code) by deriving from the `ConsoleMenu` class. An `OnBeforeShow()` and `OnAfterShow()` method is available for overriding, allowing you further customization of what displays before or after the menu options are rendered.
 
@@ -92,7 +92,7 @@ public class MainMenu : ConsoleMenu
 ```
 
 
-### Menu Defaults
+## Menu Defaults
 
 Any `ConsoleMenu`, or derived menu, supports added configuration. You can customize such things as background/foreground colors, selectors, beeps (on error), and whether or not Escape closes the menu.
 
@@ -121,11 +121,37 @@ public class MainMenu : ConsoleMenu
 }
 ```
 
-### Dynamic Menus
+### KeyString Mode
+
+One configuration choice you may make, is the decision to use `KeyString` mode for menu selection. Instead of up and down arrow navigation, `KeyString` mode allows the user to enter key strings to select a menu option.
+
+When using KeyString mode, you can supply the value that will be used to select the option as the `keyString` parameter. If you do not supply a value, the options will be auto-numbered.
+
+```csharp
+public class MainMenu : ConsoleMenu
+{
+    public MainMenu()
+    {
+        // Add Options to the Main Menu
+        this.AddOption("Hello World", HelloWorld, "HW")
+            .AddOption("Date and Time", DisplayDateAndTime, "DT")
+            .AddOption("Display Weather", DisplayWeather, "DW")
+            .AddOption("Close", Close, "Q") // ConsoleMenu.Close
+            .Configure(config => {
+                config.MenuSelectionMode = MenuSelectionMode.KeyString;
+                config.ItemBackgroundColor = ConsoleColor.White;
+                config.ItemForegroundColor = ConsoleColor.Black;
+                config.SelectedItemBackgroundColor = ConsoleColor.White;
+                config.SelectedItemForegroundColor = ConsoleColor.Black;                
+                config.BeepOnError = true;
+            });
+    }
+}
+```
+
+## Dynamic Menus
 
 If your application requires menu options that are dynamically generated from a data source, you can use the `AddOptionRange<T>(IEnumerable<T>, Func<T, MenuOptionResult>)` method provided by `ConsoleMenu`. An example of this syntax follows below in which a `List<Park>` objects is used to build menu options.
-
-> **Note** `ToString()` will be automatically invoked on each object in the list determine how to display it in the menu.
 
 ```csharp
 public class ParksMenu : ConsoleMenu
@@ -152,7 +178,48 @@ public class ParksMenu : ConsoleMenu
 }
 ```
 
-#### Modifying Menu Options
+### Menu Text for Dynamic Menus
+
+For dynamic menus, by default the `ToString()` method will be called on each object in the data source to determine what text to display on the menu.  If you prefer not to use `ToString()` for this purpose, you may specify a *get text* callback function. This will be called by ConsoleMenu at the time the menu is drawn.  
+
+Also for dynamic menus in *KeyString* menu selection mode, by default each option will be auto-numbered, but you can override this behavior by specifying a *get key string* callback function, to be called when the menu is drawn.
+
+Both of these options options may be included in the call to `AddOptionRange` as follows:
+
+```csharp
+    public class ParksMenu : ConsoleMenu
+    {
+        private List<Park> parks;
+        public ParksMenu(List<Park> parks)
+        {
+            //1. Indicates the object type that corresponds with the menu option.
+            //2. The collection of objects to display as menu options.
+            //3. The name of the method that accepts a parameter of type T 
+            //   (indicated by 1) and returns a MenuOptionResult.
+            //4. A callback to a named method that returns the menu text to be displayed
+            //5. A callback to an anonymous function that returns the Keystring used to select the option
+                                //1   //2    //3              //4          //5
+            this.AddOptionRange<Park>(parks, ShowParkDetails, GetMenuText, p => $"{p.ParkId}")
+                .AddOption("Close", Close);
+        }
+
+        // The parameter passed in, park, corresponds with the menu option
+        // that was selected in the menu.
+        private MenuOptionResult ShowParkDetails(Park park)
+        {
+            Console.WriteLine($"You selected {park.Name}.");
+            return MenuOptionResult.WaitAfterMenuSelection;
+        }
+
+        // This method is called for each park in the list to get the text to be displayed on the menu
+        private string GetMenuText(Park park)
+        {
+            return $"{park.Name.ToUpper()}, {park.State}";
+        }
+    }
+```
+
+### Modifying Menu Options
 
 If your application needs to update the available menu options (i.e. your user can choose an item to delete or change its name), you can override `RebuildMenuOptions()`. `RebuildMenuOptions()` is invoked before the menu options are drawn, allowing your application to display the most up to date options. 
 
@@ -165,7 +232,7 @@ protected override void RebuildMenuOptions()
 }
 ```
 
-### Using Console Menu Helpers
+## Using Console Menu Helpers
 
 The `ConsoleMenu` class exposes additional user input helper methods. These methods introduce validation and will prompt the user continuously until a valid value is provided. Methods exist for `integer`, `double`, `decimal`, `DateTime`, `bool`, and `string`. They are marked static so that they can be used from anywhere.
 

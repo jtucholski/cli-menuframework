@@ -16,8 +16,11 @@ namespace MenuFramework.Sample.UI
                 .AddOption("Hello World", HelloWorld)
                 .AddOption("Today", ShowMenu<TodayMenu>)
                 .AddOption("Parks", ShowParksMenu)
-                .AddOption("Close", Close)
-                .Configure(config => {
+                .AddOption("Close", Close, "Q")
+                .Configure(config =>
+                {
+                    config.MenuSelectionMode = MenuSelectionMode.KeyString;
+                    config.KeyStringTextSeparator = " | ";
                     config.ItemBackgroundColor = ConsoleColor.White;
                     config.ItemForegroundColor = ConsoleColor.Black;
                     config.SelectedItemBackgroundColor = ConsoleColor.White;
@@ -30,12 +33,16 @@ namespace MenuFramework.Sample.UI
         {
             // Create an "on-the-fly" menu
             ConsoleMenu jokeMenu = new ConsoleMenu()
-                .AddOption("Cross the road jokes", DisplayCrossTheRoadJokes)
-                .AddOption("Bar jokes", DisplayBarJokes)
-                .AddOption("Computer jokes", DisplayComputerJokes)
-                .AddOption("Close joke menu", ConsoleMenu.Close)
-                .AddOption("Exit program", ConsoleMenu.Exit);
-            jokeMenu.Configure(cfg => { cfg.SelectedItemForegroundColor = ConsoleColor.Red;});
+                .AddOption("Cross the road jokes", DisplayCrossTheRoadJokes, "CTR")
+                .AddOption("Bar jokes", DisplayBarJokes, "BAR")
+                .AddOption("Computer jokes", DisplayComputerJokes, "CMP")
+                .AddOption("Close joke menu", ConsoleMenu.Close, "Q")
+                .AddOption("Exit program", ConsoleMenu.Exit, "QQ");
+            jokeMenu.Configure(cfg =>
+            {
+                cfg.MenuSelectionMode = MenuSelectionMode.KeyString;
+                cfg.SelectedItemForegroundColor = ConsoleColor.Red;
+            });
 
             return jokeMenu.Show();
         }
@@ -127,7 +134,7 @@ namespace MenuFramework.Sample.UI
 
         public void ParkSelected(Park selection)
         {
-            Console.WriteLine($"The user selected {selection.Name}.");         
+            Console.WriteLine($"The user selected {selection.Name}.");
         }
     }
 }
