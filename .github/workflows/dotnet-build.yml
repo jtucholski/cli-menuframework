@@ -2,10 +2,8 @@ name: .NET Build
 
 on:
   push:
-    branches: [ production ]
-  pull_request:
-    branches: [ production ]
-
+    branches: [ main ]
+    
 jobs:
   build:    
     runs-on: ubuntu-latest
