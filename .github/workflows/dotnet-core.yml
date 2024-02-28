@@ -21,13 +21,17 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal
-  deploy:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/production'
-    steps:
-    - uses: actions/checkout@v4
-    - name: Publish MenuFramework
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-        PROJECT_FILE_PATH: MenuFramework/MenuFramework.csproj
-        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Pack nugets
+      run: dotnet pack MenuFramework/MenuFramework.csproj -c Release --no-build --output .
+    - name: Push to NuGet
+      run: dotnet nuget push "*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json      
+#  deploy:
+#    runs-on: ubuntu-latest
+#    if: github.ref == 'refs/heads/production'
+#    steps:
+#    - uses: actions/checkout@v4
+#    - name: Publish MenuFramework
+#      uses: brandedoutcast/publish-nuget@v2.5.5
+#      with:
+#        PROJECT_FILE_PATH: MenuFramework/MenuFramework.csproj
+#        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
