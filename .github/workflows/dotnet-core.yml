@@ -1,4 +1,4 @@
-name: .NET Core
+name: .NET Build
 
 on:
   push:
@@ -10,24 +10,24 @@ jobs:
   build:    
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+    - uses: actions/checkout@v4
+    - name: Setup .NET Build
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 3.1.301
+        dotnet-version: 8.0.200
     - name: Install dependencies
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal
-  deploy:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/production'
-    steps:
-    - uses: actions/checkout@v2
-    - name: Publish MenuFramework
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-        PROJECT_FILE_PATH: MenuFramework/MenuFramework.csproj
-        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/production'
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - name: Publish MenuFramework
+  #     uses: brandedoutcast/publish-nuget@v2.5.5
+  #     with:
+  #       PROJECT_FILE_PATH: MenuFramework/MenuFramework.csproj
+  #       NUGET_KEY: ${{secrets.NUGET_API_KEY}}
