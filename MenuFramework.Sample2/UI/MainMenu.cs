@@ -72,16 +72,6 @@ namespace MenuFramework.Sample.UI
             Console.ReadKey();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("The difference is staggering.");
-            Console.ReadKey();
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.Clear();
-            Console.WriteLine("A man was staggering home drunk in the early hours of the morning when he was stopped by a police officer.");
-            Console.WriteLine("\"What are you doing out at this time of night?\" asked the officer.");
-            Console.WriteLine("\"I'm going to a lecture,\" said the drunk.");
-            Console.WriteLine("\"And who's going to be giving a lecture at this hour?\"");
-            Console.ReadKey();
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\"My wife.\"");
 
             return MenuOptionResult.WaitAfterMenuSelection;
         }
@@ -89,13 +79,6 @@ namespace MenuFramework.Sample.UI
         private MenuOptionResult DisplayCrossTheRoadJokes()
         {
             Console.ForegroundColor = ConsoleColor.Black;
-            Console.WriteLine("Why did the chicken cross the road?");
-            Console.ReadKey();
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("He was practicing good Social Distancing.");
-            Console.ReadKey();
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.Clear();
             Console.WriteLine("Why did the chicken cross the road, roll in the dirt, and cross the road again?");
             Console.ReadKey();
             Console.ForegroundColor = ConsoleColor.Green;
